@@ -12,12 +12,11 @@ Then open:  http://localhost:5000
 """
 
 import random
-import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
 import urllib3
 
@@ -31,11 +30,40 @@ HEADERS = {
 }
 
 # ─────────────────────────────────────────
-# Helpers
+# CONFIG
+# ─────────────────────────────────────────
+
+KEYWORDS = [
+    "pothole", "garbage", "drain", "flood",
+    "waterlogging", "bbmp", "road damage",
+    "sewage", "streetlight", "civic issue"
+]
+
+# ─────────────────────────────────────────
+# HELPERS
 # ─────────────────────────────────────────
 
 def gen_id():
     return ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
+
+def is_relevant(text):
+    return any(k in text.lower() for k in KEYWORDS)
+
+def score_issue(text):
+    score = 0
+    text = text.lower()
+
+    for k in KEYWORDS:
+        if k in text:
+            score += 1
+
+    if "bangalore" in text or "bengaluru" in text:
+        score += 2
+
+    if len(text) > 50:
+        score += 1
+
+    return score
 
 def build_issue(text, source, url=None):
     return {
@@ -43,6 +71,7 @@ def build_issue(text, source, url=None):
         "description": text[:200],
         "source": source,
         "source_url": url,
+        "confidence": score_issue(text),
         "timestamp": datetime.utcnow().isoformat()
     }
 
@@ -53,12 +82,12 @@ def safe_request(url):
         return None
 
 # ─────────────────────────────────────────
-# SCRAPERS
+# SOURCES (HIGH QUALITY ONLY)
 # ─────────────────────────────────────────
 
 def scrape_reddit():
     results = []
-    url = "https://www.reddit.com/r/bangalore/search.json?q=pothole&limit=10"
+    url = "https://www.reddit.com/search.json?q=bangalore pothole&limit=20"
 
     resp = safe_request(url)
     if not resp or resp.status_code != 200:
@@ -72,7 +101,7 @@ def scrape_reddit():
             text = p["data"]["title"]
             link = "https://reddit.com" + p["data"]["permalink"]
 
-            if len(text) > 20:
+            if is_relevant(text):
                 results.append(build_issue(text, "reddit", link))
     except:
         pass
@@ -82,7 +111,7 @@ def scrape_reddit():
 
 def scrape_google_news():
     results = []
-    url = "https://news.google.com/rss/search?q=bangalore pothole"
+    url = "https://news.google.com/rss/search?q=bangalore civic issue"
 
     resp = safe_request(url)
     if not resp:
@@ -90,15 +119,19 @@ def scrape_google_news():
 
     soup = BeautifulSoup(resp.content, "xml")
 
-    for item in soup.find_all("item")[:5]:
-        results.append(build_issue(item.title.text, "google_news", item.link.text))
+    for item in soup.find_all("item")[:10]:
+        text = item.title.text
+        link = item.link.text
+
+        if is_relevant(text):
+            results.append(build_issue(text, "google_news", link))
 
     return results
 
 
 def scrape_bing_news():
     results = []
-    url = "https://www.bing.com/news/search?q=bangalore pothole&format=rss"
+    url = "https://www.bing.com/news/search?q=bangalore civic issue&format=rss"
 
     resp = safe_request(url)
     if not resp:
@@ -106,93 +139,35 @@ def scrape_bing_news():
 
     soup = BeautifulSoup(resp.content, "xml")
 
-    for item in soup.find_all("item")[:5]:
-        results.append(build_issue(item.title.text, "bing_news", item.link.text))
+    for item in soup.find_all("item")[:10]:
+        text = item.title.text
+        link = item.link.text
+
+        if is_relevant(text):
+            results.append(build_issue(text, "bing_news", link))
 
     return results
 
 
-def scrape_indian_news():
+# ─────────────────────────────────────────
+# MASTER PIPELINE
+# ─────────────────────────────────────────
+
+def run_pipeline():
     sources = [
-        "https://www.thehindu.com/news/cities/bangalore/feeder/default.rss",
-        "https://timesofindia.indiatimes.com/rssfeeds/-2128838597.cms",
-        "https://feeds.feedburner.com/ndtvnews-top-stories"
+        scrape_reddit,
+        scrape_google_news,
+        scrape_bing_news,
     ]
 
-    results = []
-
-    for src in sources:
-        resp = safe_request(src)
-        if not resp:
-            continue
-
-        soup = BeautifulSoup(resp.content, "xml")
-
-        for item in soup.find_all("item")[:3]:
-            results.append(build_issue(item.title.text, "indian_news", item.link.text))
-
-    return results
-
-
-def scrape_change_org():
-    results = []
-    url = "https://www.change.org/search?q=bangalore roads"
-
-    resp = safe_request(url)
-    if not resp:
-        return results
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-
-    for p in soup.select("a")[:5]:
-        text = p.get_text(strip=True)
-        if len(text) > 30:
-            results.append(build_issue(text, "change_org", url))
-
-    return results
-
-
-def scrape_hackernews():
-    results = []
-    url = "https://hn.algolia.com/api/v1/search?query=bangalore pothole"
-
-    resp = safe_request(url)
-    if not resp:
-        return results
-
-    try:
-        data = resp.json()
-        for hit in data["hits"][:5]:
-            results.append(build_issue(hit["title"], "hackernews", hit["url"]))
-    except:
-        pass
-
-    return results
-
-
-# ─────────────────────────────────────────
-# MASTER SCRAPER
-# ─────────────────────────────────────────
-
-SCRAPERS = [
-    scrape_reddit,
-    scrape_google_news,
-    scrape_bing_news,
-    scrape_indian_news,
-    scrape_change_org,
-    scrape_hackernews,
-]
-
-def run_all_scrapers():
     all_data = []
 
-    for scraper in SCRAPERS:
+    for src in sources:
         try:
-            data = scraper()
+            data = src()
             all_data.extend(data)
-            time.sleep(0.5)
         except Exception as e:
-            print("Scraper failed:", scraper.__name__, e)
+            print("Error in", src.__name__, e)
 
     # Deduplicate
     seen = set()
@@ -204,7 +179,10 @@ def run_all_scrapers():
             seen.add(key)
             unique.append(item)
 
-    return unique
+    # Filter high confidence
+    filtered = [x for x in unique if x["confidence"] >= 2]
+
+    return filtered
 
 
 # ─────────────────────────────────────────
@@ -222,12 +200,12 @@ def index():
 
 @app.route("/scrape")
 def scrape():
-    data = run_all_scrapers()
+    data = run_pipeline()
 
     if len(data) == 0:
         return jsonify({
             "status": "error",
-            "message": "No real data available",
+            "message": "No verified civic issues found",
             "data": []
         }), 500
 
@@ -235,7 +213,7 @@ def scrape():
         "status": "success",
         "count": len(data),
         "timestamp": datetime.utcnow().isoformat(),
-        "data": data[:25]
+        "data": data[:20]
     })
 
 
