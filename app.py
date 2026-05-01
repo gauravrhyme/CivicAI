@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 import urllib3
@@ -37,21 +37,6 @@ WARDS = [
     "Shivajinagar","Basavanagudi","Frazer Town","Sadashivanagar","Bellandur",
 ]
 
-ISSUE_KEYWORDS = {
-    "Pothole":["pothole","road damage","bad road"],
-    "Garbage":["garbage","waste","trash","dump"],
-    "Water Logging":["waterlog","flood"],
-    "Open Drain":["open drain","manhole"],
-    "Broken Streetlight":["streetlight","no light"],
-}
-
-SEVERITY_KEYWORDS = {
-    "critical":["accident","danger"],
-    "high":["major","severe"],
-    "medium":["pothole","garbage"],
-    "low":["minor"],
-}
-
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
     "Accept-Language": "en-US,en;q=0.9",
@@ -62,38 +47,13 @@ HEADERS = {
 def gen_id():
     return ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=7))
 
-def detect_issue_type(text):
-    text = text.lower()
-    for k,v in ISSUE_KEYWORDS.items():
-        if any(x in text for x in v):
-            return k
-    return "Pothole"
-
-def detect_severity(text):
-    text = text.lower()
-    for k,v in SEVERITY_KEYWORDS.items():
-        if any(x in text for x in v):
-            return k
-    return "medium"
-
-def detect_ward(text):
-    text = text.lower()
-    for w in WARDS:
-        if w.lower() in text:
-            return w
-    return random.choice(WARDS)
-
 def build_issue(text, source, url=None):
     return {
         "id": gen_id(),
-        "issue_type": detect_issue_type(text),
         "description": text[:140],
-        "ward": detect_ward(text),
-        "severity": detect_severity(text),
-        "status": "open",
-        "created_at": datetime.utcnow().isoformat(),
         "source": source,
-        "source_url": url
+        "source_url": url,
+        "created_at": datetime.utcnow().isoformat()
     }
 
 # ── SCRAPERS ──────────────────────────────────────────
@@ -172,8 +132,16 @@ def scrape_bbmp():
 # ── ROUTES ────────────────────────────────────────────
 
 @app.route("/")
-def home():
-    return render_template("index.html")   # IMPORTANT
+def index():
+    import os
+    try:
+        print("FILES IN ROOT:", os.listdir())  # Debug log
+
+        with open("CivicAI.html", "r", encoding="utf-8") as f:
+            return f.read()
+
+    except Exception as e:
+        return f"<h2>ERROR LOADING HTML:</h2><pre>{str(e)}</pre>"
 
 
 @app.route("/scrape")
@@ -191,9 +159,9 @@ def health():
     return jsonify({"status": "ok"})
 
 
-# ── RUN ───────────────────────────────────────────────
+# ── RUN (FIXED FOR RENDER) ─────────────────────────────
 
 if __name__ == "__main__":
     import os
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 10000))   # IMPORTANT FIX
     app.run(host="0.0.0.0", port=port)
