@@ -12,220 +12,154 @@ Then open:  http://localhost:5000
 """
 
 import random
-from datetime import datetime, timedelta
-
+from datetime import datetime
 import requests
-from bs4 import BeautifulSoup
+import pandas as pd
 from flask import Flask, jsonify
 from flask_cors import CORS
-import urllib3
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
 CORS(app)
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0",
-}
+# DATA SOURCES
+POTHOLE_CSV = "https://data.opencity.in/dataset/3a1a98f8-f924-4257-a2a1-3b957b55b9f5/resource/22be8fdc-532d-4ec8-8e31-2e6d26d5ce85/download/e03fbadf-ff1a-4fe1-9aad-a2a38a2bd81d.csv"
 
-# ─────────────────────────────────────────
-# CONFIG
-# ─────────────────────────────────────────
+POTHOLE_KML = "https://data.opencity.in/dataset/3a1a98f8-f924-4257-a2a1-3b957b55b9f5/resource/d1d4a437-95ee-4327-9154-f9a8933b2110/download/63b30ddf-5919-43d0-a6cf-17d5cc90a35c.kml"
 
-KEYWORDS = [
-    "pothole", "garbage", "drain", "flood",
-    "waterlogging", "bbmp", "road damage",
-    "sewage", "streetlight", "civic issue"
-]
-
-# ─────────────────────────────────────────
 # HELPERS
-# ─────────────────────────────────────────
-
 def gen_id():
     return ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
 
-def is_relevant(text):
-    return any(k in text.lower() for k in KEYWORDS)
-
-def score_issue(text):
-    score = 0
+def score_severity(text):
     text = text.lower()
+    if "accident" in text or "danger" in text:
+        return "high"
+    if "flood" in text:
+        return "high"
+    if "pothole" in text:
+        return "medium"
+    return "low"
 
-    for k in KEYWORDS:
-        if k in text:
-            score += 1
-
-    if "bangalore" in text or "bengaluru" in text:
-        score += 2
-
-    if len(text) > 50:
-        score += 1
-
-    return score
-
-def build_issue(text, source, url=None):
+def build_issue(text, source, lat=None, lon=None, ward="Unknown"):
     return {
         "id": gen_id(),
-        "description": text[:200],
+        "description": text,
         "source": source,
-        "source_url": url,
-        "confidence": score_issue(text),
+        "latitude": lat,
+        "longitude": lon,
+        "severity": score_severity(text),
+        "ward": ward,
         "timestamp": datetime.utcnow().isoformat()
     }
 
-def safe_request(url):
+# FETCH CSV DATA
+def fetch_csv():
+    results = []
     try:
-        return requests.get(url, headers=HEADERS, timeout=10, verify=False)
-    except:
-        return None
+        df = pd.read_csv(POTHOLE_CSV)
 
-# ─────────────────────────────────────────
-# SOURCES (HIGH QUALITY ONLY)
-# ─────────────────────────────────────────
+        for _, row in df.head(100).iterrows():
+            ward = row.get("Ward Name", "Unknown")
 
-def scrape_reddit():
+            results.append(build_issue(
+                text=f"Pothole reported in {ward}",
+                source="OpenCity CSV",
+                lat=row.get("Latitude"),
+                lon=row.get("Longitude"),
+                ward=ward
+            ))
+    except Exception as e:
+        print("CSV error:", e)
+
+    return results
+
+# FETCH KML DATA
+def fetch_kml():
     results = []
-    url = "https://www.reddit.com/search.json?q=bangalore pothole&limit=20"
-
-    resp = safe_request(url)
-    if not resp or resp.status_code != 200:
-        return results
-
     try:
-        data = resp.json()
-        posts = data["data"]["children"]
+        resp = requests.get(POTHOLE_KML, timeout=10)
+        root = ET.fromstring(resp.content)
 
-        for p in posts:
-            text = p["data"]["title"]
-            link = "https://reddit.com" + p["data"]["permalink"]
+        for p in root.findall(".//{http://www.opengis.net/kml/2.2}Placemark")[:100]:
+            coords = p.find(".//{http://www.opengis.net/kml/2.2}coordinates")
 
-            if is_relevant(text):
-                results.append(build_issue(text, "reddit", link))
-    except:
-        pass
+            if coords is not None:
+                lon, lat, _ = coords.text.split(",")
 
-    return results
-
-
-def scrape_google_news():
-    results = []
-    url = "https://news.google.com/rss/search?q=bangalore civic issue"
-
-    resp = safe_request(url)
-    if not resp:
-        return results
-
-    soup = BeautifulSoup(resp.content, "xml")
-
-    for item in soup.find_all("item")[:10]:
-        text = item.title.text
-        link = item.link.text
-
-        if is_relevant(text):
-            results.append(build_issue(text, "google_news", link))
+                results.append(build_issue(
+                    text="Pothole reported",
+                    source="OpenCity KML",
+                    lat=float(lat),
+                    lon=float(lon)
+                ))
+    except Exception as e:
+        print("KML error:", e)
 
     return results
 
+# ANALYTICS
+def build_leaderboard(issues):
+    counts = {}
+    for i in issues:
+        counts[i["ward"]] = counts.get(i["ward"], 0) + 1
 
-def scrape_bing_news():
-    results = []
-    url = "https://www.bing.com/news/search?q=bangalore civic issue&format=rss"
+    return sorted(
+        [{"ward": k, "count": v} for k, v in counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )[:10]
 
-    resp = safe_request(url)
-    if not resp:
-        return results
+def cluster_issues(issues):
+    clusters = {}
+    for i in issues:
+        key = i["description"][:30]
 
-    soup = BeautifulSoup(resp.content, "xml")
+        if key not in clusters:
+            clusters[key] = []
 
-    for item in soup.find_all("item")[:10]:
-        text = item.title.text
-        link = item.link.text
+        clusters[key].append(i)
 
-        if is_relevant(text):
-            results.append(build_issue(text, "bing_news", link))
+    return [{"cluster": k, "items": v} for k, v in clusters.items()][:10]
 
-    return results
-
-
-# ─────────────────────────────────────────
-# MASTER PIPELINE
-# ─────────────────────────────────────────
-
+# PIPELINE
 def run_pipeline():
-    sources = [
-        scrape_reddit,
-        scrape_google_news,
-        scrape_bing_news,
-    ]
+    data = fetch_csv() + fetch_kml()
 
-    all_data = []
-
-    for src in sources:
-        try:
-            data = src()
-            all_data.extend(data)
-        except Exception as e:
-            print("Error in", src.__name__, e)
-
-    # Deduplicate
+    # Deduplicate by lat/lon
     seen = set()
     unique = []
-
-    for item in all_data:
-        key = item["description"][:80].lower()
+    for i in data:
+        key = (i["latitude"], i["longitude"])
         if key not in seen:
             seen.add(key)
-            unique.append(item)
+            unique.append(i)
 
-    # Filter high confidence
-    filtered = [x for x in unique if x["confidence"] >= 2]
+    return unique, build_leaderboard(unique), cluster_issues(unique)
 
-    return filtered
-
-
-# ─────────────────────────────────────────
 # ROUTES
-# ─────────────────────────────────────────
-
 @app.route("/")
 def index():
-    try:
-        with open("CivicAI.html", "r", encoding="utf-8") as f:
-            return f.read()
-    except Exception as e:
-        return f"<h2>Error loading UI:</h2><pre>{str(e)}</pre>"
-
+    with open("CivicAI.html", "r", encoding="utf-8") as f:
+        return f.read()
 
 @app.route("/scrape")
 def scrape():
-    data = run_pipeline()
-
-    if len(data) == 0:
-        return jsonify({
-            "status": "error",
-            "message": "No verified civic issues found",
-            "data": []
-        }), 500
+    issues, leaderboard, clusters = run_pipeline()
 
     return jsonify({
         "status": "success",
-        "count": len(data),
         "timestamp": datetime.utcnow().isoformat(),
-        "data": data[:20]
+        "issues": issues[:100],
+        "leaderboard": leaderboard,
+        "clusters": clusters
     })
-
 
 @app.route("/health")
 def health():
     return jsonify({"status": "ok"})
 
-
-# ─────────────────────────────────────────
 # RUN
-# ─────────────────────────────────────────
-
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
