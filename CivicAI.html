@@ -24,14 +24,14 @@
 </head>
 <body>
 <div id="root"></div>
-
+ 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-
+ 
 <script type="text/babel">
 const {useState, useRef, useEffect, useCallback} = React;
-
+ 
 // ─── TOKENS ──────────────────────────────────────────────────────────────────
 const C = {
   bg:"#05080F", surface:"#0B1120", card:"#0F1729",
@@ -40,7 +40,7 @@ const C = {
   orange:"#FF9500", yellow:"#FFD60A", green:"#30D158",
   text:"#FFFFFF", sub:"rgba(255,255,255,0.5)", muted:"rgba(255,255,255,0.28)",
 };
-
+ 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const WARDS = [
   "Indiranagar","Koramangala","Jayanagar","Rajajinagar","Malleswaram",
@@ -69,13 +69,13 @@ const SOURCE_META = {
   reddit: {bg:"rgba(255,69,0,0.12)",  color:"#FF4500",label:"Reddit"},
   scrape: {bg:"rgba(0,168,255,0.12)", color:"#00A8FF",label:"Live Feed"},
 };
-
+ 
 const genId = () => Math.random().toString(36).slice(2,9).toUpperCase();
 const daysAgo = n => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString(); };
 const daysOpen = d => Math.floor((Date.now()-new Date(d))/86400000);
 const sevColor = s => ({critical:C.red,high:C.orange,medium:C.yellow,low:C.green}[s]||C.sub);
 const sevBg    = s => ({critical:"rgba(255,45,85,0.12)",high:"rgba(255,149,0,0.12)",medium:"rgba(255,214,10,0.12)",low:"rgba(48,209,88,0.12)"}[s]||"rgba(255,255,255,0.06)");
-
+ 
 const SEED = [
   {id:genId(),issue_type:"Pothole",          description:"Large pothole on 12th Main Road causing daily near-miss accidents",       location_name:"Indiranagar, 12th Main",   ward:"Indiranagar",    severity:"critical",status:"open",    created_at:daysAgo(14),upvotes:43,source:"citizen",image_url:null},
   {id:genId(),issue_type:"Garbage",          description:"Overflowing garbage bins near market — 5 days uncollected, stench severe", location_name:"Koramangala, 5th Block",   ward:"Koramangala",    severity:"high",   status:"open",    created_at:daysAgo(8), upvotes:27,source:"citizen",image_url:null},
@@ -88,7 +88,7 @@ const SEED = [
   {id:genId(),issue_type:"Illegal Dumping",  description:"Construction debris dumped on public footpath blocking pedestrians",        location_name:"Hebbal, Ring Road",        ward:"Hebbal",         severity:"medium", status:"open",    created_at:daysAgo(31),upvotes:9, source:"citizen",image_url:null},
   {id:genId(),issue_type:"Damaged Footpath", description:"Broken tiles creating serious accessibility hazard near shopping mall",     location_name:"BTM Layout, 2nd Stage",    ward:"BTM Layout",     severity:"low",    status:"resolved",created_at:daysAgo(30),upvotes:7, source:"citizen",image_url:null},
 ];
-
+ 
 // ─── LOGO SVG ─────────────────────────────────────────────────────────────────
 function CivicAILogo({size=36}) {
   const teeth = [0,45,90,135,180,225,270,315].map(a => {
@@ -114,7 +114,7 @@ function CivicAILogo({size=36}) {
     </svg>
   );
 }
-
+ 
 function LogoFull() {
   return (
     <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -128,7 +128,7 @@ function LogoFull() {
     </div>
   );
 }
-
+ 
 // ─── SVG ICONS ────────────────────────────────────────────────────────────────
 const SVG = {
   feed:   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
@@ -151,7 +151,7 @@ const SVG = {
   warn:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
   phone:  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>,
 };
-
+ 
 // ─── BADGE COMPONENTS ─────────────────────────────────────────────────────────
 function Pill({children, color, bg}) {
   return <span style={{fontSize:10,fontWeight:800,letterSpacing:.7,textTransform:"uppercase",padding:"2px 7px",borderRadius:4,color,background:bg,display:"inline-block"}}>{children}</span>;
@@ -165,7 +165,7 @@ function SourceBadge({src}) {
 function Avatar({initials, size=40, shame=false}) {
   return <div style={{width:size,height:size,borderRadius:"50%",flexShrink:0,background:shame?"rgba(255,45,85,0.12)":"rgba(0,200,150,0.12)",border:`2px solid ${shame?C.red:C.teal}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:size*.34,fontWeight:800,color:shame?C.red:C.teal}}>{initials}</div>;
 }
-
+ 
 // ─── ISSUE CARD ───────────────────────────────────────────────────────────────
 function IssueCard({issue, onUpvote, onSelect}) {
   const days = daysOpen(issue.created_at);
@@ -198,7 +198,7 @@ function IssueCard({issue, onUpvote, onSelect}) {
     </div>
   );
 }
-
+ 
 // ─── STAT CARD ────────────────────────────────────────────────────────────────
 function StatCard({label, value, sub, color}) {
   return (
@@ -209,7 +209,7 @@ function StatCard({label, value, sub, color}) {
     </div>
   );
 }
-
+ 
 // ─── HEAT GRID ────────────────────────────────────────────────────────────────
 function HeatGrid({issues}) {
   const wc={};
@@ -238,7 +238,7 @@ function HeatGrid({issues}) {
     </div>
   );
 }
-
+ 
 // ─── HALL SCREEN ──────────────────────────────────────────────────────────────
 function HallScreen({issues}) {
   const [mode,setMode] = useState("fame");
@@ -364,7 +364,7 @@ function HallScreen({issues}) {
     </div>
   );
 }
-
+ 
 // ─── ESCALATION MODAL ─────────────────────────────────────────────────────────
 function EscalateModal({issue, onClose}) {
   const off=OFFICIALS[issue.ward]||{mla:"Local MLA",bbmp:"BBMP Officer",dept:"Public Works"};
@@ -407,7 +407,7 @@ function EscalateModal({issue, onClose}) {
     </div>
   );
 }
-
+ 
 // ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
 function DetailModal({issue, onClose, onEscalate}) {
   const days=daysOpen(issue.created_at);
@@ -460,7 +460,7 @@ function DetailModal({issue, onClose, onEscalate}) {
     </div>
   );
 }
-
+ 
 // ─── REPORT MODAL ─────────────────────────────────────────────────────────────
 function ReportModal({onClose, onSubmit}) {
   const [step,setStep]=useState(1);
@@ -471,14 +471,14 @@ function ReportModal({onClose, onSubmit}) {
   const [isDragging,setIsDragging]=useState(false);
   const fileRef=useRef();
   const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
-
+ 
   function handleFile(file) {
     if(!file||!file.type.startsWith("image/")) return;
     const reader=new FileReader();
     reader.onload=e=>{ setImgPreview(e.target.result); upd("image_url",e.target.result); };
     reader.readAsDataURL(file);
   }
-
+ 
   async function runAI() {
     if(!form.issue_type||!form.description){setStep(2);return;}
     setLoading(true);
@@ -499,12 +499,12 @@ function ReportModal({onClose, onSubmit}) {
     }
     setLoading(false); setStep(2);
   }
-
+ 
   function submit() {
     onSubmit({id:genId(),...form,severity:aiResult?.severity||"medium",status:"open",created_at:new Date().toISOString(),upvotes:0,source:"citizen"});
     onClose();
   }
-
+ 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.9)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:20,padding:24,maxWidth:420,width:"100%",maxHeight:"90vh",overflowY:"auto",animation:"slideUp .3s ease"}}>
@@ -518,7 +518,7 @@ function ReportModal({onClose, onSubmit}) {
         <div style={{display:"flex",gap:5,marginBottom:18}}>
           {[1,2].map(s=><div key={s} style={{flex:1,height:3,borderRadius:2,background:s<=step?C.teal:C.border,transition:"all .3s"}}/>)}
         </div>
-
+ 
         {step===1&&(
           <div>
             {/* PHOTO UPLOAD */}
@@ -547,7 +547,7 @@ function ReportModal({onClose, onSubmit}) {
               )}
               <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>handleFile(e.target.files[0])}/>
             </div>
-
+ 
             <select value={form.issue_type} onChange={e=>upd("issue_type",e.target.value)} style={{width:"100%",padding:"11px 14px",borderRadius:10,background:"rgba(255,255,255,0.04)",border:`1px solid ${C.border}`,color:form.issue_type?C.text:C.muted,fontSize:14,marginBottom:10}}>
               <option value="" disabled style={{background:C.surface}}>Select Issue Type</option>
               {ISSUE_TYPES.map(t=><option key={t} value={t} style={{background:C.surface}}>{t}</option>)}
@@ -566,7 +566,7 @@ function ReportModal({onClose, onSubmit}) {
             </div>
           </div>
         )}
-
+ 
         {step===2&&(
           <div>
             {imgPreview&&<img src={imgPreview} alt="Issue" style={{width:"100%",borderRadius:10,marginBottom:14,maxHeight:160,objectFit:"cover"}}/>}
@@ -594,14 +594,14 @@ function ReportModal({onClose, onSubmit}) {
     </div>
   );
 }
-
+ 
 // ─── LIVE DATA FETCH — calls Flask /scrape route ──────────────────────────────
 // When running via Flask (python app.py), this hits http://localhost:5000/scrape
 // When opening CivicAI.html directly as a file, it falls back gracefully.
 const FLASK_BASE = (window.location.protocol === "file:")
   ? "http://localhost:5000"   // opened as a local file → point to Flask server
   : "";                        // served by Flask → use relative URL
-
+ 
 async function fetchLiveData() {
   const res = await fetch(`${FLASK_BASE}/scrape?sources=reddit,news,twitter,bbmp&limit=20`, {
     method: "GET",
@@ -611,7 +611,7 @@ async function fetchLiveData() {
   const data = await res.json();   // Flask returns a JSON array directly
   return data;
 }
-
+ 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 function App() {
   const [tab,setTab]           = useState("feed");
@@ -625,11 +625,11 @@ function App() {
   const [scraping,setScraping] = useState(false);
   const [lastFetched,setLastFetched] = useState(null);
   const [liveCount,setLiveCount] = useState(0);
-
+ 
   const showToast=(m,col=C.green)=>{ setToast({m,col}); setTimeout(()=>setToast(null),3000); };
   const addIssue=i=>{ setIssues(p=>[i,...p]); showToast("✓ Issue reported & live on dashboard"); };
   const upvote=id=>{ setIssues(p=>p.map(i=>i.id===id?{...i,upvotes:i.upvotes+1}:i)); };
-
+ 
   const doFetch=async()=>{
     setScraping(true);
     showToast("🔍 Searching Twitter, Reddit, News sites…",C.blue);
@@ -652,7 +652,7 @@ function App() {
     } catch(e){ showToast("⚠ Could not fetch live data",C.orange); }
     setScraping(false);
   };
-
+ 
   const open=issues.filter(i=>i.status==="open");
   const resolved=issues.filter(i=>i.status==="resolved");
   const critical=issues.filter(i=>i.severity==="critical"&&i.status==="open");
@@ -665,19 +665,19 @@ function App() {
     if(wardFilter&&i.ward!==wardFilter) return false;
     return true;
   });
-
+ 
   const TABS=[
     {id:"feed",label:"Feed",icon:SVG.feed},
     {id:"dashboard",label:"Stats",icon:SVG.chart},
     {id:"map",label:"Map",icon:SVG.map},
     {id:"hall",label:"Hall",icon:SVG.hall},
   ];
-
+ 
   return (
     <div style={{minHeight:"100vh",background:C.bg,color:C.text}}>
       {/* BG glow */}
       <div style={{position:"fixed",inset:0,pointerEvents:"none",background:"radial-gradient(ellipse at 10% 0%,rgba(0,200,150,0.04) 0%,transparent 50%),radial-gradient(ellipse at 90% 100%,rgba(0,168,255,0.04) 0%,transparent 50%)"}}/>
-
+ 
       {/* HEADER */}
       <header style={{position:"sticky",top:0,zIndex:100,background:"rgba(5,8,15,0.96)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${C.border}`,padding:"11px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <LogoFull/>
@@ -685,7 +685,7 @@ function App() {
           {SVG.plus} Report
         </button>
       </header>
-
+ 
       {/* TICKER */}
       <div style={{background:"rgba(255,45,85,0.06)",borderBottom:"1px solid rgba(255,45,85,0.1)",padding:"5px 16px",fontSize:12,color:C.red,fontWeight:700,whiteSpace:"nowrap",overflowX:"auto",display:"flex",gap:10}}>
         <span>🔴 LIVE</span>
@@ -695,7 +695,7 @@ function App() {
         <span>· Bengaluru</span>
         {lastFetched&&<span style={{color:C.teal}}>· Scraped {lastFetched}</span>}
       </div>
-
+ 
       {/* TABS */}
       <div style={{display:"flex",borderBottom:`1px solid ${C.border}`,background:"rgba(5,8,15,0.92)",backdropFilter:"blur(10px)",position:"sticky",top:60,zIndex:90}}>
         {TABS.map(t=>(
@@ -704,10 +704,10 @@ function App() {
           </button>
         ))}
       </div>
-
+ 
       {/* CONTENT */}
       <main style={{padding:"14px 14px 90px",position:"relative",zIndex:1}}>
-
+ 
         {/* FEED */}
         {tab==="feed"&&(
           <div>
@@ -739,7 +739,7 @@ function App() {
             {!filtered.length&&<div style={{textAlign:"center",padding:40,color:C.muted}}>No issues match the current filter</div>}
           </div>
         )}
-
+ 
         {/* DASHBOARD */}
         {tab==="dashboard"&&(
           <div>
@@ -789,7 +789,7 @@ function App() {
             </div>
           </div>
         )}
-
+ 
         {/* MAP */}
         {tab==="map"&&(
           <div>
@@ -811,19 +811,19 @@ function App() {
             </div>
           </div>
         )}
-
+ 
         {/* HALL */}
         {tab==="hall"&&<HallScreen issues={issues}/>}
       </main>
-
+ 
       {/* FAB */}
       <button className="fab" onClick={()=>setShowReport(true)} style={{position:"fixed",bottom:24,right:16,zIndex:200,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${C.teal},${C.blue})`,border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:`0 6px 28px rgba(0,200,150,0.4)`,color:"white"}}>
         {SVG.plus}
       </button>
-
+ 
       {/* TOAST */}
       {toast&&<div style={{position:"fixed",bottom:90,left:"50%",transform:"translateX(-50%)",background:toast.col,borderRadius:10,padding:"9px 20px",fontSize:13,fontWeight:700,color:"white",zIndex:300,whiteSpace:"nowrap",boxShadow:"0 4px 20px rgba(0,0,0,0.4)",animation:"fadeIn .3s ease"}}>{toast.m}</div>}
-
+ 
       {/* MODALS */}
       {showReport&&<ReportModal onClose={()=>setShowReport(false)} onSubmit={addIssue}/>}
       {selected&&!escalate&&<DetailModal issue={selected} onClose={()=>setSelected(null)} onEscalate={i=>{setEscalate(i);setSelected(null);}}/>}
@@ -831,9 +831,10 @@ function App() {
     </div>
   );
 }
-
+ 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App/>);
 </script>
 </body>
 </html>
+ 
