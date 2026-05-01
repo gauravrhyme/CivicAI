@@ -17,18 +17,27 @@ import requests
 from flask import Flask, jsonify
 from flask_cors import CORS
 import xml.etree.ElementTree as ET
+import csv
+from io import StringIO
 
 app = Flask(__name__)
 CORS(app)
 
+# ─────────────────────────────────────────
 # DATA SOURCES
+# ─────────────────────────────────────────
+
 POTHOLE_CSV = "https://data.opencity.in/dataset/3a1a98f8-f924-4257-a2a1-3b957b55b9f5/resource/22be8fdc-532d-4ec8-8e31-2e6d26d5ce85/download/e03fbadf-ff1a-4fe1-9aad-a2a38a2bd81d.csv"
 
 POTHOLE_KML = "https://data.opencity.in/dataset/3a1a98f8-f924-4257-a2a1-3b957b55b9f5/resource/d1d4a437-95ee-4327-9154-f9a8933b2110/download/63b30ddf-5919-43d0-a6cf-17d5cc90a35c.kml"
 
+# ─────────────────────────────────────────
 # HELPERS
+# ─────────────────────────────────────────
+
 def gen_id():
     return ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
+
 
 def score_severity(text):
     text = text.lower()
@@ -39,6 +48,7 @@ def score_severity(text):
     if "pothole" in text:
         return "medium"
     return "low"
+
 
 def build_issue(text, source, lat=None, lon=None, ward="Unknown"):
     return {
@@ -52,28 +62,44 @@ def build_issue(text, source, lat=None, lon=None, ward="Unknown"):
         "timestamp": datetime.utcnow().isoformat()
     }
 
-# FETCH CSV DATA
+# ─────────────────────────────────────────
+# FETCH CSV DATA (NO PANDAS)
+# ─────────────────────────────────────────
+
 def fetch_csv():
     results = []
     try:
-        df = pd.read_csv(POTHOLE_CSV)
+        resp = requests.get(POTHOLE_CSV, timeout=10)
+        data = resp.text
 
-        for _, row in df.head(100).iterrows():
+        reader = csv.DictReader(StringIO(data))
+
+        for i, row in enumerate(reader):
+            if i >= 100:
+                break
+
             ward = row.get("Ward Name", "Unknown")
+            lat = row.get("Latitude")
+            lon = row.get("Longitude")
 
-            results.append(build_issue(
-                text=f"Pothole reported in {ward}",
-                source="OpenCity CSV",
-                lat=row.get("Latitude"),
-                lon=row.get("Longitude"),
-                ward=ward
-            ))
+            if lat and lon:
+                results.append(build_issue(
+                    text=f"Pothole reported in {ward}",
+                    source="OpenCity CSV",
+                    lat=float(lat),
+                    lon=float(lon),
+                    ward=ward
+                ))
+
     except Exception as e:
         print("CSV error:", e)
 
     return results
 
+# ─────────────────────────────────────────
 # FETCH KML DATA
+# ─────────────────────────────────────────
+
 def fetch_kml():
     results = []
     try:
@@ -92,14 +118,19 @@ def fetch_kml():
                     lat=float(lat),
                     lon=float(lon)
                 ))
+
     except Exception as e:
         print("KML error:", e)
 
     return results
 
+# ─────────────────────────────────────────
 # ANALYTICS
+# ─────────────────────────────────────────
+
 def build_leaderboard(issues):
     counts = {}
+
     for i in issues:
         counts[i["ward"]] = counts.get(i["ward"], 0) + 1
 
@@ -109,8 +140,10 @@ def build_leaderboard(issues):
         reverse=True
     )[:10]
 
+
 def cluster_issues(issues):
     clusters = {}
+
     for i in issues:
         key = i["description"][:30]
 
@@ -121,30 +154,51 @@ def cluster_issues(issues):
 
     return [{"cluster": k, "items": v} for k, v in clusters.items()][:10]
 
+# ─────────────────────────────────────────
 # PIPELINE
+# ─────────────────────────────────────────
+
 def run_pipeline():
     data = fetch_csv() + fetch_kml()
 
     # Deduplicate by lat/lon
     seen = set()
     unique = []
+
     for i in data:
         key = (i["latitude"], i["longitude"])
+
         if key not in seen:
             seen.add(key)
             unique.append(i)
 
-    return unique, build_leaderboard(unique), cluster_issues(unique)
+    leaderboard = build_leaderboard(unique)
+    clusters = cluster_issues(unique)
 
+    return unique, leaderboard, clusters
+
+# ─────────────────────────────────────────
 # ROUTES
+# ─────────────────────────────────────────
+
 @app.route("/")
 def index():
-    with open("CivicAI.html", "r", encoding="utf-8") as f:
-        return f.read()
+    try:
+        with open("CivicAI.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        return f"<h2>Error loading UI:</h2><pre>{str(e)}</pre>"
+
 
 @app.route("/scrape")
 def scrape():
     issues, leaderboard, clusters = run_pipeline()
+
+    if len(issues) == 0:
+        return jsonify({
+            "status": "error",
+            "message": "No real data available"
+        }), 500
 
     return jsonify({
         "status": "success",
@@ -154,11 +208,15 @@ def scrape():
         "clusters": clusters
     })
 
+
 @app.route("/health")
 def health():
     return jsonify({"status": "ok"})
 
-# RUN
+# ─────────────────────────────────────────
+# RUN (RENDER COMPATIBLE)
+# ─────────────────────────────────────────
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
