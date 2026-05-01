@@ -1,92 +1,243 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CivicAI Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicAI Dashboard</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
-  <style>
-    body { font-family: Arial; margin:0; background:#121212; color:white; }
-    #map { height: 50vh; }
-    .section { padding:15px; }
-    .card { background:#1e1e1e; padding:10px; margin:10px 0; border-radius:8px; }
-    .high { color:red; }
-    .medium { color:orange; }
-    .low { color:lightgreen; }
-  </style>
+<style>
+body {
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:white;
+}
+
+/* Branding */
+.branding {
+  text-align:center;
+  padding:12px 10px;
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  width:80px;
+  height:40px;
+  object-fit:contain;
+}
+
+.subtitle {
+  font-size:12px;
+  color:#B0BEC5;
+  margin-top:4px;
+}
+
+/* Tabs */
+.tabs {
+  display:flex;
+  justify-content:space-around;
+  margin:10px;
+}
+
+.tab {
+  padding:10px;
+  cursor:pointer;
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+  font-size:14px;
+}
+
+.active {
+  background:#39FF14;
+  color:black;
+}
+
+/* Sections */
+.section {
+  display:none;
+  padding:10px;
+}
+
+.active-section {
+  display:block;
+}
+
+/* Map */
+#map {
+  height:50vh;
+  border-radius:12px;
+}
+
+/* Grid */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+}
+
+/* Cards */
+.card {
+  background:rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  padding:10px;
+  border-radius:12px;
+  transition:0.2s;
+}
+
+.card:hover {
+  transform:scale(1.03);
+}
+
+/* Counters */
+.counter {
+  font-size:20px;
+  font-weight:bold;
+}
+
+/* Severity */
+.high { color:red; }
+.medium { color:orange; }
+.low { color:#39FF14; }
+
+/* Small text */
+.small {
+  font-size:11px;
+  color:#ccc;
+}
+</style>
 </head>
 
 <body>
 
-<h2 style="padding:15px;">🚀 CivicAI Dashboard</h2>
+<!-- Branding -->
+<header class="branding">
+  <!-- 🔁 Replace this with your real logo -->
+  <img src="https://via.placeholder.com/80x40?text=CivicAI" class="logo"/>
+  <div class="subtitle">CivicAI Action Initiative</div>
+</header>
 
-<div id="map"></div>
-
-<div class="section">
-  <h3>📊 Ward Leaderboard</h3>
-  <div id="leaderboard"></div>
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('mapTab', this)">🗺 Map</div>
+  <div class="tab" onclick="switchTab('leaderboardTab', this)">📊 Leaderboard</div>
+  <div class="tab" onclick="switchTab('timelineTab', this)">⚠ Issues</div>
 </div>
 
-<div class="section">
-  <h3>⚠ Issues</h3>
-  <div id="issues"></div>
+<!-- Map -->
+<div id="mapTab" class="section active-section">
+  <div id="map"></div>
 </div>
 
-<div class="section">
-  <h3>🧠 Clusters</h3>
-  <div id="clusters"></div>
+<!-- Leaderboard -->
+<div id="leaderboardTab" class="section">
+  <div id="leaderboard" class="grid"></div>
 </div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Timeline -->
+<div id="timelineTab" class="section">
+  <div id="issues" class="grid"></div>
+</div>
 
 <script>
-const map = L.map('map').setView([12.9716, 77.5946], 11);
+const map = L.map('map').setView([12.9716,77.5946],11);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-fetch("/scrape")
-.then(res => res.json())
-.then(data => {
+let heatLayer = null;
 
-  // MAP
-  data.issues.forEach(i => {
-    if(i.latitude && i.longitude){
-      L.circleMarker([i.latitude, i.longitude], {
-        radius:5,
-        color: i.severity === "high" ? "red" :
-               i.severity === "medium" ? "orange" : "green"
-      }).addTo(map)
-        .bindPopup(`<b>${i.description}</b><br>${i.source}`);
+/* Tab Switch */
+function switchTab(id, el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active-section');
+  el.classList.add('active');
+}
+
+/* Counter Animation */
+function animateValue(el, start, end, duration){
+  let startTime = null;
+
+  function step(timestamp){
+    if(!startTime) startTime = timestamp;
+    let progress = timestamp - startTime;
+    let value = Math.min(start + (progress/duration)*(end-start), end);
+    el.innerText = Math.floor(value);
+    if(progress < duration){
+      requestAnimationFrame(step);
     }
+  }
+  requestAnimationFrame(step);
+}
+
+/* Load Data */
+function loadData(){
+
+fetch("/scrape")
+.then(res=>res.json())
+.then(data=>{
+
+  const issues = data.issues || [];
+  const leaderboard = data.leaderboard || [];
+
+  /* HEATMAP FIX (remove old layer) */
+  if(heatLayer){
+    map.removeLayer(heatLayer);
+  }
+
+  const heatPoints = issues
+    .filter(i => i.latitude && i.longitude)
+    .map(i => [i.latitude, i.longitude, 0.5]);
+
+  heatLayer = L.heatLayer(heatPoints, {radius:25});
+  heatLayer.addTo(map);
+
+  /* LEADERBOARD */
+  const lb = document.getElementById("leaderboard");
+  lb.innerHTML = "";
+
+  leaderboard.forEach(w=>{
+    const div = document.createElement("div");
+    div.className="card";
+    div.innerHTML = `
+      <div>${w.ward}</div>
+      <div class="counter">0</div>
+    `;
+    lb.appendChild(div);
+
+    animateValue(div.querySelector(".counter"),0,w.count,800);
   });
 
-  // ISSUES LIST
+  /* ISSUES */
   const issuesDiv = document.getElementById("issues");
-  data.issues.slice(0,20).forEach(i => {
+  issuesDiv.innerHTML="";
+
+  issues.slice(0,20).forEach(i=>{
     issuesDiv.innerHTML += `
       <div class="card">
         <b>${i.description}</b><br>
-        Source: ${i.source}<br>
-        Severity: <span class="${i.severity}">${i.severity}</span><br>
-        Time: ${i.timestamp}
+        <span class="${i.severity}">${i.severity}</span><br>
+        <div class="small">${i.source}</div>
+        <div class="small">${new Date(i.timestamp).toLocaleString()}</div>
       </div>
     `;
   });
 
-  // LEADERBOARD
-  const lb = document.getElementById("leaderboard");
-  data.leaderboard.forEach(w => {
-    lb.innerHTML += `<div class="card">${w.ward} — ${w.count}</div>`;
-  });
-
-  // CLUSTERS
-  const cl = document.getElementById("clusters");
-  data.clusters.forEach(c => {
-    cl.innerHTML += `<div class="card">${c.cluster} (${c.items.length})</div>`;
-  });
-
+})
+.catch(err=>{
+  console.error("Error:",err);
 });
+
+}
+
+/* Initial Load */
+loadData();
+
+/* Auto Refresh */
+setInterval(loadData,30000);
+
 </script>
 
 </body>
