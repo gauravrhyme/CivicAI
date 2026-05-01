@@ -14,7 +14,6 @@ Then open:  http://localhost:5000
 import random
 from datetime import datetime
 import requests
-import pandas as pd
 from flask import Flask, jsonify
 from flask_cors import CORS
 import xml.etree.ElementTree as ET
