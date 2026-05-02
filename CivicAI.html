@@ -11,178 +11,127 @@
 <style>
 body {
   margin:0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:white;
+  font-family: Roboto, sans-serif;
+  background:#121212;
+  color:#FFFFFF;
 }
 
-/* Branding */
-.branding {
+/* HEADER (RESTORED BRANDING) */
+.header {
   text-align:center;
-  padding:12px 10px;
-  backdrop-filter: blur(12px);
+  padding:10px;
+  border-bottom:1px solid #2c2c2c;
 }
 
 .logo {
   width:80px;
   height:40px;
-  object-fit:contain;
 }
 
 .subtitle {
   font-size:12px;
   color:#B0BEC5;
-  margin-top:4px;
 }
 
-/* Tabs */
-.tabs {
-  display:flex;
-  justify-content:space-around;
-  margin:10px;
-}
-
-.tab {
-  padding:10px;
-  cursor:pointer;
-  background:rgba(255,255,255,0.1);
-  border-radius:10px;
-  font-size:14px;
-}
-
-.active {
-  background:#39FF14;
-  color:black;
-}
-
-/* Sections */
+/* SECTION BASE */
 .section {
-  display:none;
   padding:10px;
 }
 
-.active-section {
-  display:block;
-}
-
-/* Map */
+/* MAP */
 #map {
-  height:50vh;
-  border-radius:12px;
+  height:200px;
+  border-radius:8px;
 }
 
-/* Grid */
-.grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:10px;
+/* LEADERBOARD */
+.leaderboard-item {
+  display:flex;
+  justify-content:space-between;
+  padding:8px;
+  border-bottom:1px solid #2c2c2c;
 }
 
-/* Cards */
-.card {
-  background:rgba(255,255,255,0.08);
-  backdrop-filter: blur(12px);
-  padding:10px;
-  border-radius:12px;
-  transition:0.2s;
+/* TIMELINE */
+.timeline {
+  border-left:3px solid #007BFF;
+  margin-left:10px;
+  padding-left:10px;
 }
 
-.card:hover {
-  transform:scale(1.03);
+.timeline-item {
+  margin-bottom:10px;
+  position:relative;
 }
 
-/* Counters */
-.counter {
-  font-size:20px;
-  font-weight:bold;
+.timeline-item::before {
+  content:'';
+  width:8px;
+  height:8px;
+  background:#39FF14;
+  border-radius:50%;
+  position:absolute;
+  left:-15px;
+  top:5px;
 }
 
-/* Severity */
-.high { color:red; }
-.medium { color:orange; }
+/* SEVERITY */
+.high { color:#FF0000; }
+.medium { color:#FFA500; }
 .low { color:#39FF14; }
 
-/* Small text */
 .small {
   font-size:11px;
-  color:#ccc;
+  color:#B0BEC5;
 }
+
 </style>
 </head>
 
 <body>
 
-<!-- Branding -->
-<header class="branding">
-  <!-- 🔁 Replace this with your real logo -->
+<!-- HEADER -->
+<div class="header">
   <img src="https://via.placeholder.com/80x40?text=CivicAI" class="logo"/>
   <div class="subtitle">CivicAI Action Initiative</div>
-</header>
-
-<!-- Tabs -->
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('mapTab', this)">🗺 Map</div>
-  <div class="tab" onclick="switchTab('leaderboardTab', this)">📊 Leaderboard</div>
-  <div class="tab" onclick="switchTab('timelineTab', this)">⚠ Issues</div>
 </div>
 
-<!-- Map -->
-<div id="mapTab" class="section active-section">
+<!-- MAP / HEATMAP -->
+<div class="section">
+  <h3>📍 Civic Heatmap</h3>
   <div id="map"></div>
 </div>
 
-<!-- Leaderboard -->
-<div id="leaderboardTab" class="section">
-  <div id="leaderboard" class="grid"></div>
+<!-- LEADERBOARD -->
+<div class="section">
+  <h3>🏆 Ward Leaderboard</h3>
+  <div id="leaderboard"></div>
 </div>
 
-<!-- Timeline -->
-<div id="timelineTab" class="section">
-  <div id="issues" class="grid"></div>
+<!-- TIMELINE -->
+<div class="section">
+  <h3>⚠ Issue Timeline</h3>
+  <div id="timeline" class="timeline"></div>
 </div>
 
 <script>
+
 const map = L.map('map').setView([12.9716,77.5946],11);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 let heatLayer = null;
 
-/* Tab Switch */
-function switchTab(id, el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active-section');
-  el.classList.add('active');
-}
-
-/* Counter Animation */
-function animateValue(el, start, end, duration){
-  let startTime = null;
-
-  function step(timestamp){
-    if(!startTime) startTime = timestamp;
-    let progress = timestamp - startTime;
-    let value = Math.min(start + (progress/duration)*(end-start), end);
-    el.innerText = Math.floor(value);
-    if(progress < duration){
-      requestAnimationFrame(step);
-    }
-  }
-  requestAnimationFrame(step);
-}
-
-/* Load Data */
 function loadData(){
 
 fetch("/scrape")
-.then(res=>res.json())
-.then(data=>{
+.then(res => res.json())
+.then(data => {
 
   const issues = data.issues || [];
   const leaderboard = data.leaderboard || [];
 
-  /* HEATMAP FIX (remove old layer) */
+  /* HEATMAP */
   if(heatLayer){
     map.removeLayer(heatLayer);
   }
@@ -198,27 +147,24 @@ fetch("/scrape")
   const lb = document.getElementById("leaderboard");
   lb.innerHTML = "";
 
-  leaderboard.forEach(w=>{
-    const div = document.createElement("div");
-    div.className="card";
-    div.innerHTML = `
-      <div>${w.ward}</div>
-      <div class="counter">0</div>
+  leaderboard.forEach(w => {
+    lb.innerHTML += `
+      <div class="leaderboard-item">
+        <span>${w.ward}</span>
+        <span>${w.count}</span>
+      </div>
     `;
-    lb.appendChild(div);
-
-    animateValue(div.querySelector(".counter"),0,w.count,800);
   });
 
-  /* ISSUES */
-  const issuesDiv = document.getElementById("issues");
-  issuesDiv.innerHTML="";
+  /* TIMELINE */
+  const timeline = document.getElementById("timeline");
+  timeline.innerHTML = "";
 
-  issues.slice(0,20).forEach(i=>{
-    issuesDiv.innerHTML += `
-      <div class="card">
-        <b>${i.description}</b><br>
-        <span class="${i.severity}">${i.severity}</span><br>
+  issues.slice(0,20).forEach(i => {
+    timeline.innerHTML += `
+      <div class="timeline-item">
+        <div><b>${i.description}</b></div>
+        <div class="${i.severity}">${i.severity}</div>
         <div class="small">${i.source}</div>
         <div class="small">${new Date(i.timestamp).toLocaleString()}</div>
       </div>
@@ -226,17 +172,15 @@ fetch("/scrape")
   });
 
 })
-.catch(err=>{
-  console.error("Error:",err);
-});
+.catch(err => console.error(err));
 
 }
 
-/* Initial Load */
+/* INITIAL LOAD */
 loadData();
 
-/* Auto Refresh */
-setInterval(loadData,30000);
+/* AUTO REFRESH */
+setInterval(loadData, 30000);
 
 </script>
 
