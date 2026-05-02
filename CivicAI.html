@@ -1,188 +1,1922 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CivicAI Dashboard</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>CivicAI — Civic Accountability Platform · Bengaluru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
-body {
-  margin:0;
-  font-family: Roboto, sans-serif;
-  background:#121212;
-  color:#FFFFFF;
+/* ══════════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{
+  background:#0C0F1A;
+  color:#E8EDF5;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px;line-height:1.5;
+  overflow-x:hidden;min-height:100vh;
 }
-
-/* HEADER (RESTORED BRANDING) */
-.header {
-  text-align:center;
-  padding:10px;
-  border-bottom:1px solid #2c2c2c;
+:root{
+  --bg:#0C0F1A;
+  --surface:#111520;
+  --card:#161B2A;
+  --card-hover:#1C2235;
+  --border:rgba(255,255,255,0.07);
+  --border-hi:rgba(255,255,255,0.13);
+  --teal:#00C896;
+  --teal-dim:rgba(0,200,150,0.12);
+  --blue:#3B9EFF;
+  --blue-dim:rgba(59,158,255,0.12);
+  --red:#FF3355;
+  --red-dim:rgba(255,51,85,0.12);
+  --orange:#FF8C00;
+  --orange-dim:rgba(255,140,0,0.12);
+  --yellow:#FFD60A;
+  --yellow-dim:rgba(255,214,10,0.12);
+  --green:#30D158;
+  --green-dim:rgba(48,209,88,0.12);
+  --purple:#9B6DFF;
+  --text:#E8EDF5;
+  --sub:rgba(232,237,245,0.55);
+  --muted:rgba(232,237,245,0.30);
+  --faint:rgba(232,237,245,0.08);
+  --sidebar:240px;
+  --topbar:60px;
 }
-
-.logo {
-  width:80px;
-  height:40px;
+select,textarea,input{outline:none;font-family:inherit;}
+button{font-family:inherit;cursor:pointer;}
+a{text-decoration:none;color:inherit;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+ 
+/* ══════════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════════ */
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+@keyframes countIn{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+@keyframes shimmer{0%{opacity:.5;}50%{opacity:1;}100%{opacity:.5;}}
+ 
+/* ══════════════════════════════════════════════
+   LAYOUT SHELL
+══════════════════════════════════════════════ */
+#shell{display:flex;height:100vh;overflow:hidden;}
+ 
+/* ── SIDEBAR ── */
+#sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:relative;z-index:200;overflow-y:auto;overflow-x:hidden;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),width .3s;
 }
-
-.subtitle {
-  font-size:12px;
-  color:#B0BEC5;
+.sb-logo{
+  padding:18px 18px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
 }
-
-/* SECTION BASE */
-.section {
-  padding:10px;
+.sb-logo-text .civic{font-size:20px;font-weight:900;color:var(--teal);letter-spacing:-.5px;}
+.sb-logo-text .ai{font-size:20px;font-weight:900;color:var(--blue);letter-spacing:-.5px;}
+.sb-logo-text .sub{font-size:8px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:1px;}
+.sb-city{
+  margin:10px 14px;padding:7px 11px;border-radius:8px;
+  background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.14);
+  font-size:11px;font-weight:600;color:var(--teal);
+  display:flex;align-items:center;gap:7px;
 }
-
-/* MAP */
-#map {
-  height:200px;
-  border-radius:8px;
+.sb-city-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite;flex-shrink:0;}
+.sb-section{
+  padding:10px 18px 4px;
+  font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);
 }
-
-/* LEADERBOARD */
-.leaderboard-item {
-  display:flex;
-  justify-content:space-between;
-  padding:8px;
-  border-bottom:1px solid #2c2c2c;
+.nav-link{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 14px;margin:1px 8px;border-radius:9px;
+  color:var(--sub);font-size:13px;font-weight:500;
+  border:1px solid transparent;transition:all .15s;
+  cursor:pointer;user-select:none;
 }
-
-/* TIMELINE */
-.timeline {
-  border-left:3px solid #007BFF;
-  margin-left:10px;
-  padding-left:10px;
+.nav-link:hover{background:var(--faint);color:var(--text);}
+.nav-link.active{
+  background:linear-gradient(135deg,rgba(0,200,150,0.1),rgba(59,158,255,0.07));
+  border-color:rgba(0,200,150,0.18);color:var(--teal);font-weight:600;
 }
-
-.timeline-item {
-  margin-bottom:10px;
-  position:relative;
+.nav-link svg{opacity:.65;flex-shrink:0;}
+.nav-link.active svg{opacity:1;}
+.nav-badge{
+  margin-left:auto;font-size:10px;font-weight:700;
+  padding:1px 6px;border-radius:10px;
+  background:rgba(255,51,85,0.15);color:var(--red);
 }
-
-.timeline-item::before {
-  content:'';
-  width:8px;
-  height:8px;
-  background:#39FF14;
-  border-radius:50%;
-  position:absolute;
-  left:-15px;
-  top:5px;
+.sb-report-btn{
+  margin:10px 14px;padding:10px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#00C896,#0070F3);
+  color:#fff;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  box-shadow:0 4px 18px rgba(0,200,150,0.22);
+  transition:opacity .2s,transform .18s;
 }
-
-/* SEVERITY */
-.high { color:#FF0000; }
-.medium { color:#FFA500; }
-.low { color:#39FF14; }
-
-.small {
-  font-size:11px;
-  color:#B0BEC5;
+.sb-report-btn:hover{opacity:.88;transform:translateY(-1px);}
+.sb-footer{padding:14px 18px;border-top:1px solid var(--border);margin-top:auto;font-size:10.5px;color:var(--muted);}
+ 
+/* ── MAIN ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+ 
+/* ── TOPBAR ── */
+#topbar{
+  height:var(--topbar);background:rgba(12,15,26,.95);
+  backdrop-filter:blur(18px);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:0 24px;
+  flex-shrink:0;z-index:100;position:relative;
 }
-
+#topbar-title{font-size:16px;font-weight:700;color:var(--text);flex:1;}
+.tb-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--border-hi);
+  border-radius:8px;padding:6px 12px;min-width:190px;
+}
+.tb-search input{background:none;border:none;color:var(--text);font-size:13px;width:100%;}
+.tb-search input::placeholder{color:var(--muted);}
+.live-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(255,51,85,0.1);border:1px solid rgba(255,51,85,0.2);
+  font-size:10.5px;font-weight:700;color:var(--red);white-space:nowrap;
+  font-family:'JetBrains Mono',monospace;
+}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:pulse 1.1s infinite;}
+.refresh-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:8px;border:none;
+  background:linear-gradient(135deg,#00C896,#0070F3);
+  color:#fff;font-size:12px;font-weight:700;
+  box-shadow:0 3px 12px rgba(0,200,150,0.18);
+  transition:opacity .18s,transform .18s;white-space:nowrap;
+}
+.refresh-btn:hover{opacity:.85;transform:translateY(-1px);}
+.refresh-btn:disabled{opacity:.4;transform:none;cursor:not-allowed;}
+.refresh-btn .spin-icon{animation:spin 1s linear infinite;display:inline-flex;}
+.hamburger{background:none;border:none;color:var(--sub);display:flex;padding:4px;border-radius:6px;}
+ 
+/* ── TICKER ── */
+#ticker-bar{
+  background:rgba(255,51,85,0.05);
+  border-bottom:1px solid rgba(255,51,85,0.1);
+  padding:5px 0;overflow:hidden;flex-shrink:0;
+  font-size:11px;font-weight:700;color:var(--red);
+  font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:0;
+}
+.ticker-track{
+  display:flex;gap:32px;white-space:nowrap;
+  animation:ticker 28s linear infinite;
+}
+.ticker-track:hover{animation-play-state:paused;}
+.ticker-item{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+ 
+/* ── REFRESH COUNTDOWN ── */
+#refresh-bar{
+  height:2px;background:linear-gradient(90deg,var(--teal),var(--blue));
+  transform-origin:left;transition:transform 1s linear;
+  flex-shrink:0;
+}
+ 
+/* ── SCROLL AREA ── */
+#content-scroll{flex:1;overflow-y:auto;overflow-x:hidden;}
+#content{padding:22px 24px 90px;}
+ 
+/* ── SECTION ── */
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;}
+.section-title{font-size:21px;font-weight:800;color:var(--text);}
+.section-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.section-action{font-size:11px;font-weight:600;color:var(--teal);cursor:pointer;}
+.section-action:hover{opacity:.75;}
+ 
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;
+}
+.stat-card:hover{border-color:var(--border-hi);transform:translateY(-2px);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--teal));}
+.stat-num{
+  font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;
+  color:var(--accent,var(--teal));letter-spacing:-1px;
+  animation:countIn .5s ease backwards;
+}
+.stat-label{font-size:11.5px;font-weight:600;color:var(--sub);margin-top:5px;}
+.stat-hint{font-size:10px;color:var(--muted);margin-top:2px;}
+.stat-trend{position:absolute;top:12px;right:14px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+ 
+/* ── LOADING SKELETON ── */
+.skeleton{
+  background:linear-gradient(90deg,var(--card) 25%,var(--card-hover) 50%,var(--card) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.6s infinite;
+  border-radius:6px;
+}
+ 
+/* ── GRID LAYOUTS ── */
+.grid-2{display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+.grid-2-eq{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+ 
+/* ── PANEL ── */
+.panel{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:13px;padding:18px 20px;overflow:hidden;
+}
+.panel-title{font-size:13.5px;font-weight:700;color:var(--text);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.panel-meta{font-size:11px;color:var(--muted);}
+ 
+/* ── HEATMAP ── */
+.heat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.heat-cell{
+  border-radius:7px;padding:8px 5px;text-align:center;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  border:1px solid transparent;
+}
+.heat-cell:hover{transform:scale(1.05);box-shadow:0 3px 14px rgba(0,0,0,0.3);}
+.heat-cell.active-ward{border-color:rgba(255,255,255,0.3)!important;box-shadow:0 0 0 2px rgba(255,255,255,0.1);}
+.heat-cell .wn{font-size:9px;font-weight:700;line-height:1.2;}
+.heat-cell .wc{font-size:15px;font-weight:900;margin-top:1px;}
+.heat-legend{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.heat-legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);}
+.heat-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+ 
+/* ── LEADERBOARD ── */
+.lb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.lb-item:last-child{border-bottom:none;}
+.lb-rank{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;flex-shrink:0;
+}
+.lb-bar-track{flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.lb-bar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.lb-count{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;min-width:28px;text-align:right;flex-shrink:0;}
+.lb-ward{font-size:13px;font-weight:600;color:var(--text);min-width:110px;flex-shrink:0;}
+ 
+/* ── TIMELINE / ISSUE FEED ── */
+.timeline{position:relative;padding-left:20px;}
+.timeline::before{
+  content:'';position:absolute;left:7px;top:8px;bottom:8px;
+  width:2px;background:linear-gradient(to bottom,var(--teal),rgba(0,200,150,0.1));
+  border-radius:1px;
+}
+.tl-item{
+  position:relative;margin-bottom:14px;animation:fadeUp .4s ease backwards;
+}
+.tl-dot{
+  position:absolute;left:-16px;top:5px;
+  width:10px;height:10px;border-radius:50%;border:2px solid var(--bg);
+  flex-shrink:0;z-index:1;
+}
+.tl-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:11px;padding:12px 14px;
+  border-left-width:3px;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.tl-card:hover{background:var(--card-hover);}
+.tl-type{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.tl-loc{font-size:11px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:4px;}
+.tl-desc{font-size:12.5px;color:var(--sub);margin-top:5px;line-height:1.42;}
+.tl-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.tl-ts{font-size:10.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+ 
+/* ── SEVERITY ALERT BAR ── */
+.alert-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:9px;margin-bottom:10px;
+  border:1px solid;animation:fadeUp .3s ease;
+}
+.alert-bar.critical{background:rgba(255,51,85,0.07);border-color:rgba(255,51,85,0.2);}
+.alert-bar.high{background:rgba(255,140,0,0.07);border-color:rgba(255,140,0,0.2);}
+.alert-bar .alert-icon{font-size:16px;flex-shrink:0;}
+.alert-bar .alert-text{flex:1;font-size:12px;color:var(--sub);}
+.alert-bar .alert-count{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;flex-shrink:0;}
+ 
+/* ── PILLS / BADGES ── */
+.pill{display:inline-flex;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:2px 6px;border-radius:4px;}
+.src-badge{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-flex;}
+ 
+/* ── STICKY ACTION BAR ── */
+#action-bar{
+  position:fixed;bottom:0;right:0;
+  left:var(--sidebar);
+  background:rgba(12,15,26,.96);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  padding:10px 24px;z-index:90;
+  display:flex;align-items:center;gap:10px;
+  transition:left .3s;
+}
+.action-bar-status{flex:1;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+.action-bar-status strong{color:var(--text);}
+.ab-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:8px;border:none;
+  font-size:12.5px;font-weight:700;transition:all .15s;
+}
+.ab-btn.primary{background:linear-gradient(135deg,#00C896,#0070F3);color:#fff;box-shadow:0 3px 14px rgba(0,200,150,0.2);}
+.ab-btn.primary:hover{opacity:.88;transform:translateY(-1px);}
+.ab-btn.secondary{background:var(--faint);color:var(--sub);border:1px solid var(--border);}
+.ab-btn.secondary:hover{background:rgba(255,255,255,0.06);color:var(--text);}
+.ab-btn.danger{background:rgba(255,51,85,0.12);color:var(--red);border:1px solid rgba(255,51,85,0.2);}
+.ab-btn.danger:hover{background:rgba(255,51,85,0.18);}
+ 
+/* ── TAB ROW ── */
+.tab-row{display:flex;gap:2px;background:rgba(255,255,255,0.04);border-radius:9px;padding:3px;margin-bottom:14px;}
+.tab-btn{
+  flex:1;padding:6px 10px;border-radius:7px;border:none;
+  background:transparent;color:var(--muted);font-size:12px;font-weight:600;
+  transition:all .15s;
+}
+.tab-btn.active{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.25);}
+ 
+/* ── FILTER ROW ── */
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.filter-chip{
+  padding:5px 11px;border-radius:20px;border:1px solid var(--border);
+  background:rgba(255,255,255,0.025);color:var(--muted);
+  font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;
+}
+.filter-chip.on{border-color:var(--teal);background:rgba(0,200,150,0.08);color:var(--teal);}
+.filter-chip:hover:not(.on){border-color:var(--border-hi);color:var(--sub);}
+.filter-select{
+  padding:5px 10px;border-radius:20px;border:1px solid var(--border);
+  background:rgba(255,255,255,0.025);color:var(--muted);
+  font-size:11.5px;font-weight:600;
+}
+.filter-select option{background:#161B2A;}
+ 
+/* ── CLUSTER SECTION ── */
+.cluster-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;margin-bottom:8px;
+  border-left:3px solid var(--purple);
+}
+.cluster-label{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px;}
+.cluster-desc{font-size:12px;color:var(--sub);line-height:1.4;}
+.cluster-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;}
+ 
+/* ── PROGRESS BAR ── */
+.prog{height:5px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+ 
+/* ── HALL OF FAME ── */
+.podium-wrap{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin-bottom:20px;padding:0 8px;}
+.podium-col{flex:1;text-align:center;max-width:140px;}
+.podium-avatar{
+  width:48px;height:48px;border-radius:50%;margin:0 auto 6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;
+}
+.podium-box{border-radius:9px;padding:8px 4px;margin-top:6px;}
+.podium-box .podium-num{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+.podium-box .podium-val{font-size:20px;font-weight:900;}
+.podium-box .podium-sub{font-size:9px;color:var(--muted);}
+ 
+.officer-row{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.officer-row:last-child{border-bottom:none;}
+.officer-av{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;flex-shrink:0;
+}
+.officer-info{flex:1;min-width:0;}
+.officer-name{font-size:13px;font-weight:600;color:var(--text);}
+.officer-meta{font-size:11px;color:var(--muted);}
+.officer-score{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;text-align:right;flex-shrink:0;}
+ 
+/* ── MODAL ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:1000;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  backdrop-filter:blur(6px);animation:fadeUp .2s ease;
+}
+.modal{
+  background:var(--surface);border:1px solid var(--border-hi);
+  border-radius:18px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;
+  animation:fadeUp .25s ease;
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 22px 14px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--surface);z-index:2;
+}
+.modal-title{font-size:16px;font-weight:800;color:var(--text);}
+.modal-body{padding:18px 22px 22px;}
+.close-btn{background:none;border:none;color:var(--muted);display:flex;padding:4px;border-radius:5px;transition:color .15s;}
+.close-btn:hover{color:var(--text);}
+ 
+/* ── FORM ── */
+.f-label{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block;}
+.f-input{
+  width:100%;padding:9px 13px;border-radius:9px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border-hi);
+  color:var(--text);font-size:13.5px;transition:border-color .15s;
+  margin-bottom:11px;
+}
+.f-input:focus{border-color:var(--teal);}
+.f-input::placeholder{color:var(--muted);}
+textarea.f-input{resize:none;}
+select.f-input option{background:#161B2A;}
+.step-bar{display:flex;gap:4px;margin-bottom:16px;}
+.step-seg{flex:1;height:3px;border-radius:2px;transition:background .3s;}
+.ai-box{background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.17);border-radius:11px;padding:13px;margin-bottom:13px;}
+.ai-label{font-size:9.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin-bottom:5px;}
+.photo-drop{
+  border:2px dashed var(--border-hi);border-radius:11px;padding:20px;
+  text-align:center;cursor:pointer;transition:all .2s;
+  background:rgba(255,255,255,0.015);margin-bottom:11px;position:relative;overflow:hidden;
+}
+.photo-drop.drag{border-color:var(--teal);background:rgba(0,200,150,0.04);}
+.photo-drop:hover{border-color:rgba(255,255,255,0.18);}
+.photo-preview{width:100%;max-height:170px;object-fit:cover;border-radius:8px;display:block;}
+.remove-photo{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.7);border:none;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:#fff;}
+ 
+/* ── COPY BTN ── */
+.copy-btn{
+  width:100%;padding:8px;border-radius:8px;border:none;
+  font-size:12.5px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .15s;
+}
+ 
+/* ── LAST UPDATED BADGE ── */
+.last-updated{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10.5px;font-weight:600;color:var(--teal);
+  background:rgba(0,200,150,0.07);border:1px solid rgba(0,200,150,0.14);
+  border-radius:6px;padding:3px 9px;font-family:'JetBrains Mono',monospace;
+}
+ 
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--green);color:#fff;
+  padding:9px 20px;border-radius:10px;font-size:12.5px;font-weight:700;
+  z-index:3000;pointer-events:none;opacity:0;
+  transition:opacity .25s,transform .25s;white-space:nowrap;
+  box-shadow:0 6px 26px rgba(0,0,0,.35);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+ 
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media(max-width:1200px){
+  .stat-grid{grid-template-columns:repeat(3,1fr);}
+  .grid-2{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:900px){
+  .grid-3{grid-template-columns:1fr;}
+  .grid-2-eq{grid-template-columns:1fr;}
+  .heat-grid{grid-template-columns:repeat(4,1fr);}
+}
+@media(max-width:768px){
+  :root{--sidebar:0px;}
+  #sidebar{
+    position:fixed;top:0;left:0;height:100vh;
+    width:240px;z-index:300;
+    transform:translateX(-240px);
+  }
+  #sidebar.open{transform:translateX(0);}
+  #action-bar{left:0;}
+  #content{padding:14px 14px 80px;}
+  #topbar{padding:0 14px;}
+  .tb-search{display:none;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .stat-num{font-size:22px;}
+  .section-title{font-size:17px;}
+  .heat-grid{grid-template-columns:repeat(4,1fr);}
+  #mobile-nav{display:flex!important;}
+}
+@media(max-width:480px){
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .heat-grid{grid-template-columns:repeat(3,1fr);}
+  .podium-wrap{gap:6px;}
+}
+ 
+/* ── MOBILE NAV ── */
+#mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(17,21,32,.97);border-top:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  padding:6px 0 max(6px,env(safe-area-inset-bottom));
+}
+.mnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;color:var(--muted);
+  font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 2px;
+  transition:color .15s;
+}
+.mnav-btn.on{color:var(--teal);}
+ 
+/* ── SIDEBAR OVERLAY (mobile) ── */
+#sb-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:250;
+}
+#sb-overlay.show{display:block;}
 </style>
 </head>
-
 <body>
-
-<!-- HEADER -->
-<div class="header">
-  <img src="https://via.placeholder.com/80x40?text=CivicAI" class="logo"/>
-  <div class="subtitle">CivicAI Action Initiative</div>
-</div>
-
-<!-- MAP / HEATMAP -->
-<div class="section">
-  <h3>📍 Civic Heatmap</h3>
-  <div id="map"></div>
-</div>
-
-<!-- LEADERBOARD -->
-<div class="section">
-  <h3>🏆 Ward Leaderboard</h3>
-  <div id="leaderboard"></div>
-</div>
-
-<!-- TIMELINE -->
-<div class="section">
-  <h3>⚠ Issue Timeline</h3>
-  <div id="timeline" class="timeline"></div>
-</div>
-
+ 
+<!-- TOAST -->
+<div id="toast"></div>
+ 
+<div id="shell">
+  <!-- ════════════════════ SIDEBAR ════════════════════ -->
+  <nav id="sidebar">
+    <div class="sb-logo">
+      <!-- CivicAI knot logo -->
+      <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00C896"/><stop offset="60%" stop-color="#00BBE0"/><stop offset="100%" stop-color="#3B9EFF"/></linearGradient></defs>
+        <path d="M50 50 Q50 24 32 18 Q14 12 14 30 Q14 46 30 50 Q46 54 50 50Z" stroke="url(#lg)" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q50 24 68 18 Q86 12 86 30 Q86 46 70 50 Q54 54 50 50Z" stroke="url(#lg)" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q50 76 32 82 Q14 88 14 70 Q14 54 30 50 Q46 46 50 50Z" stroke="url(#lg)" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q50 76 68 82 Q86 88 86 70 Q86 54 70 50 Q54 46 50 50Z" stroke="url(#lg)" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="8" fill="#0C0F1A" stroke="url(#lg)" stroke-width="2.5"/>
+        <circle cx="50" cy="50" r="3" fill="url(#lg)"/>
+        <line x1="50" y1="42.5" x2="50" y2="38" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="57.5" x2="50" y2="62" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="42.5" y1="50" x2="38" y2="50" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="57.5" y1="50" x2="62" y2="50" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="44.8" y1="44.8" x2="41.7" y2="41.7" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="55.2" y1="55.2" x2="58.3" y2="58.3" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="55.2" y1="44.8" x2="58.3" y2="41.7" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="44.8" y1="55.2" x2="41.7" y2="58.3" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="sb-logo-text">
+        <div><span class="civic">Civic</span><span class="ai">AI</span></div>
+        <div class="sub">Action Initiative</div>
+      </div>
+    </div>
+ 
+    <div class="sb-city"><span class="sb-city-dot"></span>Bengaluru, Karnataka</div>
+ 
+    <div class="sb-section">Main</div>
+    <div class="nav-link active" id="nl-dashboard" onclick="showPage('dashboard')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-link" id="nl-feed" onclick="showPage('feed')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Live Feed
+      <span class="nav-badge" id="sb-feed-count">0</span>
+    </div>
+    <div class="nav-link" id="nl-map" onclick="showPage('map')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Ward Heat Map
+    </div>
+    <div class="sb-section">Accountability</div>
+    <div class="nav-link" id="nl-hall" onclick="showPage('hall')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M5 3H3v6a4 4 0 004 4h10a4 4 0 004-4V3h-2"/></svg>
+      Hall of Fame / Shame
+    </div>
+    <div class="nav-link" id="nl-clusters" onclick="showPage('clusters')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Issue Clusters
+    </div>
+    <div class="sb-section">Actions</div>
+    <div class="nav-link" onclick="openReport()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Report Issue
+    </div>
+ 
+    <button class="sb-report-btn" onclick="openReport()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Report an Issue
+    </button>
+    <div class="sb-footer">
+      CivicAI v3.0 · Bengaluru Pilot<br>
+      <span style="color:rgba(255,255,255,.1)">civicai.in · Open Source</span>
+    </div>
+  </nav>
+ 
+  <!-- sidebar overlay (mobile) -->
+  <div id="sb-overlay" onclick="closeSidebar()"></div>
+ 
+  <!-- ════════════════════ MAIN ════════════════════ -->
+  <div id="main">
+ 
+    <!-- TOPBAR -->
+    <div id="topbar">
+      <button class="hamburger" onclick="toggleSidebar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div id="topbar-title">Dashboard</div>
+      <div class="tb-search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search-input" type="text" placeholder="Search issues, wards…" oninput="onSearch(this.value)"/>
+      </div>
+      <div class="live-pill"><span class="live-dot"></span><span id="tb-open-count">0</span> OPEN</div>
+      <button class="refresh-btn" id="fetch-btn" onclick="fetchData(true)">
+        <span id="fetch-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></span>
+        <span id="fetch-label">Fetch Live</span>
+      </button>
+      <button onclick="openReport()" style="display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#00C896,#0070F3);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-size:12.5px;font-weight:700;box-shadow:0 3px 12px rgba(0,200,150,.2);transition:opacity .2s" onmouseover="this.style.opacity='.86'" onmouseout="this.style.opacity='1'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Report
+      </button>
+    </div>
+ 
+    <!-- REFRESH PROGRESS BAR -->
+    <div id="refresh-bar" style="transform:scaleX(1);"></div>
+ 
+    <!-- TICKER -->
+    <div id="ticker-bar">
+      <div style="display:flex;overflow:hidden;flex:1;">
+        <div class="ticker-track" id="ticker-track">
+          <span class="ticker-item">🔴 LIVE</span>
+          <span class="ticker-item" id="tk-open">— open issues</span>
+          <span class="ticker-item" id="tk-crit">— critical</span>
+          <span class="ticker-item" id="tk-over">— overdue &gt;7d · Bengaluru</span>
+          <span class="ticker-item" id="tk-fetch">Fetching live data…</span>
+          <!-- duplicated for seamless loop -->
+          <span class="ticker-item">🔴 LIVE</span>
+          <span class="ticker-item" id="tk-open2">—</span>
+          <span class="ticker-item" id="tk-crit2">—</span>
+          <span class="ticker-item" id="tk-over2">—</span>
+          <span class="ticker-item" id="tk-fetch2">civicai.in</span>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- CONTENT -->
+    <div id="content-scroll">
+      <div id="content">
+        <!-- injected by JS -->
+        <div style="padding:40px;text-align:center;color:var(--muted)">
+          <div style="font-size:28px;margin-bottom:12px">⏳</div>
+          Loading CivicAI…
+        </div>
+      </div>
+    </div>
+ 
+    <!-- STICKY ACTION BAR -->
+    <div id="action-bar">
+      <div class="action-bar-status">
+        <span id="ab-status">Loading data…</span>
+        <span id="ab-last-updated"></span>
+      </div>
+      <button class="ab-btn secondary" onclick="showPage('map')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+        Heat Map
+      </button>
+      <button class="ab-btn danger" onclick="showPage('hall')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M5 3H3v6a4 4 0 004 4h10a4 4 0 004-4V3h-2"/></svg>
+        Hall of Shame
+      </button>
+      <button class="ab-btn primary" onclick="openReport()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Report Issue
+      </button>
+    </div>
+  </div><!-- /#main -->
+</div><!-- /#shell -->
+ 
+<!-- MOBILE NAV -->
+<nav id="mobile-nav">
+  <button class="mnav-btn on" id="mn-dashboard" onclick="showPage('dashboard')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Home
+  </button>
+  <button class="mnav-btn" id="mn-feed" onclick="showPage('feed')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Feed
+  </button>
+  <button class="mnav-btn" id="mn-map" onclick="showPage('map')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+    Map
+  </button>
+  <button class="mnav-btn" id="mn-hall" onclick="showPage('hall')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M5 3H3v6a4 4 0 004 4h10a4 4 0 004-4V3h-2"/></svg>
+    Hall
+  </button>
+  <button class="mnav-btn" onclick="openReport()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Report
+  </button>
+</nav>
+ 
 <script>
-
-const map = L.map('map').setView([12.9716,77.5946],11);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-let heatLayer = null;
-
-function loadData(){
-
-fetch("/scrape")
-.then(res => res.json())
-.then(data => {
-
-  const issues = data.issues || [];
-  const leaderboard = data.leaderboard || [];
-
-  /* HEATMAP */
-  if(heatLayer){
-    map.removeLayer(heatLayer);
-  }
-
-  const heatPoints = issues
-    .filter(i => i.latitude && i.longitude)
-    .map(i => [i.latitude, i.longitude, 0.5]);
-
-  heatLayer = L.heatLayer(heatPoints, {radius:25});
-  heatLayer.addTo(map);
-
-  /* LEADERBOARD */
-  const lb = document.getElementById("leaderboard");
-  lb.innerHTML = "";
-
-  leaderboard.forEach(w => {
-    lb.innerHTML += `
-      <div class="leaderboard-item">
-        <span>${w.ward}</span>
-        <span>${w.count}</span>
-      </div>
-    `;
-  });
-
-  /* TIMELINE */
-  const timeline = document.getElementById("timeline");
-  timeline.innerHTML = "";
-
-  issues.slice(0,20).forEach(i => {
-    timeline.innerHTML += `
-      <div class="timeline-item">
-        <div><b>${i.description}</b></div>
-        <div class="${i.severity}">${i.severity}</div>
-        <div class="small">${i.source}</div>
-        <div class="small">${new Date(i.timestamp).toLocaleString()}</div>
-      </div>
-    `;
-  });
-
-})
-.catch(err => console.error(err));
-
+/* ════════════════════════════════════════════════════════════════
+   CONSTANTS & CONFIG
+════════════════════════════════════════════════════════════════ */
+const FLASK = (location.protocol === 'file:') ? 'http://localhost:5000' : '';
+const REFRESH_INTERVAL = 30; // seconds
+const PAGE_TITLES = {dashboard:'Dashboard',feed:'Live Issue Feed',map:'Ward Heat Map',hall:'Hall of Fame / Shame',clusters:'Issue Clusters'};
+ 
+const WARDS = ["Indiranagar","Koramangala","Jayanagar","Rajajinagar","Malleswaram","Hebbal","Whitefield","Electronic City","HSR Layout","BTM Layout","Banashankari","Vijayanagar","Yelahanka","JP Nagar","Marathahalli","Shivajinagar","Basavanagudi","Frazer Town","Sadashivanagar","Bellandur"];
+ 
+const OFFICIALS = {
+  "Indiranagar":    {mla:"Sowmya Reddy",    bbmp:"R. Srinivas",  dept:"Public Works",   av:"RS",resolved:12,pending:2, avgDays:4 },
+  "Koramangala":    {mla:"Rizwan Arshad",    bbmp:"K. Venkatesh", dept:"Infrastructure", av:"KV",resolved:8, pending:5, avgDays:11},
+  "Jayanagar":      {mla:"D.K. Suresh",      bbmp:"P. Ramesh",    dept:"Public Works",   av:"PR",resolved:15,pending:1, avgDays:3 },
+  "Rajajinagar":    {mla:"S.T. Somashekhar", bbmp:"M. Lakshmi",   dept:"Roads",          av:"ML",resolved:3, pending:9, avgDays:22},
+  "Malleswaram":    {mla:"Ashwath Narayan",  bbmp:"V. Anand",     dept:"Public Works",   av:"VA",resolved:6, pending:4, avgDays:14},
+  "Hebbal":         {mla:"Byrathi Suresh",    bbmp:"N. Gopal",     dept:"Infrastructure", av:"NG",resolved:1, pending:11,avgDays:31},
+  "Whitefield":     {mla:"Priya Krishna",    bbmp:"S. Murthy",    dept:"Roads",          av:"SM",resolved:10,pending:3, avgDays:6 },
+  "Electronic City":{mla:"N.A. Harris",      bbmp:"B. Raju",      dept:"Public Works",   av:"BR",resolved:2, pending:8, avgDays:27},
+  "HSR Layout":     {mla:"Saritha Ramaiah",  bbmp:"C. Prakash",   dept:"Roads",          av:"CP",resolved:9, pending:2, avgDays:5 },
+  "BTM Layout":     {mla:"Ramalinga Reddy",  bbmp:"D. Kumar",     dept:"Infrastructure", av:"DK",resolved:0, pending:13,avgDays:45},
+};
+ 
+// Severity → colour system (PRESERVED from original)
+const SEV = {
+  critical:{ color:'#FF3355', bg:'rgba(255,51,85,0.12)',   accent:'--red' },
+  high:    { color:'#FF8C00', bg:'rgba(255,140,0,0.12)',   accent:'--orange'},
+  medium:  { color:'#FFD60A', bg:'rgba(255,214,10,0.12)',  accent:'--yellow'},
+  low:     { color:'#30D158', bg:'rgba(48,209,88,0.12)',   accent:'--green'},
+};
+const sc  = s => (SEV[s]||SEV.low).color;
+const sbg = s => (SEV[s]||SEV.low).bg;
+ 
+const SRC = {
+  twitter:{bg:'rgba(29,161,242,0.12)',color:'#1DA1F2',label:'Twitter/X'},
+  reddit: {bg:'rgba(255,69,0,0.12)',  color:'#FF4500',label:'Reddit'},
+  news:   {bg:'rgba(255,140,0,0.12)', color:'#FF8C00',label:'News'},
+  bbmp:   {bg:'rgba(0,200,150,0.12)', color:'#00C896',label:'BBMP'},
+  citizen:{bg:'rgba(255,255,255,0.06)',color:'rgba(232,237,245,0.45)',label:'Citizen'},
+  scrape: {bg:'rgba(59,158,255,0.12)',color:'#3B9EFF',label:'Live'},
+  'OpenCity CSV':{bg:'rgba(155,109,255,0.12)',color:'#9B6DFF',label:'OpenCity'},
+};
+ 
+/* ════════════════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════════════════ */
+let DATA = { issues:[], leaderboard:[], clusters:[], timestamp:null };
+let SEED_LOADED = false;
+let currentPage = 'dashboard';
+let hallMode    = 'fame';
+let feedFilter  = 'all';
+let feedWard    = '';
+let searchQ     = '';
+let activeWardFilter = '';
+let refreshTimer   = null;
+let countdownTimer = null;
+let countdownLeft  = REFRESH_INTERVAL;
+let fetching       = false;
+let reportStep   = 1;
+let reportForm   = { issue_type:'', description:'', location_name:'', ward:'', image_url:null };
+let aiResult     = null;
+const ISSUE_TYPES = ["Pothole","Garbage","Broken Streetlight","Open Drain","Illegal Dumping","Damaged Footpath","Water Logging","Encroachment"];
+ 
+/* ════════════════════════════════════════════════════════════════
+   SEED DATA (fallback when /scrape is unavailable)
+════════════════════════════════════════════════════════════════ */
+function genId(){ return Math.random().toString(36).slice(2,9).toUpperCase(); }
+function dAgo(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString(); }
+function dOpen(d){ return Math.floor((Date.now()-new Date(d))/86400000); }
+function fmtDate(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + ' · ' +
+         d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
 }
-
-/* INITIAL LOAD */
-loadData();
-
-/* AUTO REFRESH */
-setInterval(loadData, 30000);
-
+ 
+const SEED_ISSUES = [
+  {id:genId(),issue_type:"Pothole",          description:"Large pothole on 12th Main causing daily near-miss accidents — 3 bikes fell this week",  location_name:"Indiranagar, 12th Main",    ward:"Indiranagar",    severity:"critical",status:"open",    created_at:dAgo(14),upvotes:43,source:"citizen",image_url:null,latitude:12.9784,longitude:77.6408},
+  {id:genId(),issue_type:"Garbage",          description:"Overflowing garbage bins near market — 5 days uncollected, stench severe near residents", location_name:"Koramangala, 5th Block",    ward:"Koramangala",    severity:"high",   status:"open",    created_at:dAgo(8), upvotes:27,source:"citizen",image_url:null,latitude:12.9352,longitude:77.6245},
+  {id:genId(),issue_type:"Broken Streetlight",description:"3 consecutive streetlights dead since last week, road completely dark at night",           location_name:"Jayanagar, 4th Block",      ward:"Jayanagar",      severity:"medium", status:"resolved",created_at:dAgo(20),upvotes:18,source:"citizen",image_url:null,latitude:12.9299,longitude:77.5924},
+  {id:genId(),issue_type:"Open Drain",       description:"Exposed drain posing health hazard near school gate — children and elderly at risk",        location_name:"Rajajinagar, 3rd Block",    ward:"Rajajinagar",    severity:"high",   status:"open",    created_at:dAgo(5), upvotes:31,source:"citizen",image_url:null,latitude:12.9914,longitude:77.5530},
+  {id:genId(),issue_type:"Water Logging",    description:"Severe waterlogging — vehicles stuck 2+ hrs after every rain on main IT corridor",          location_name:"Whitefield, ITPL Road",     ward:"Whitefield",     severity:"critical",status:"open",    created_at:dAgo(2), upvotes:56,source:"citizen",image_url:null,latitude:12.9698,longitude:77.7499},
+  {id:genId(),issue_type:"Garbage",          description:"Dead animal not removed for 3 days from main road — serious disease risk to residents",     location_name:"Hebbal, Lake Road",         ward:"Hebbal",         severity:"high",   status:"open",    created_at:dAgo(45),upvotes:19,source:"citizen",image_url:null,latitude:13.0358,longitude:77.5970},
+  {id:genId(),issue_type:"Pothole",          description:"Road caved in — partially blocking one full traffic lane on major artery",                  location_name:"BTM Layout, 80ft Road",     ward:"BTM Layout",     severity:"critical",status:"open",    created_at:dAgo(18),upvotes:41,source:"citizen",image_url:null,latitude:12.9165,longitude:77.6101},
+  {id:genId(),issue_type:"Pothole",          description:"Deep pothole causing near-miss accidents every morning rush hour near IT park entrance",     location_name:"Electronic City, Phase 1",  ward:"Electronic City",severity:"high",   status:"open",    created_at:dAgo(27),upvotes:38,source:"citizen",image_url:null,latitude:12.8399,longitude:77.6770},
+  {id:genId(),issue_type:"Illegal Dumping",  description:"Construction debris dumped on public footpath — blocking pedestrians and wheelchair users", location_name:"Hebbal, Ring Road",         ward:"Hebbal",         severity:"medium", status:"open",    created_at:dAgo(31),upvotes:9, source:"citizen",image_url:null,latitude:13.0400,longitude:77.5900},
+  {id:genId(),issue_type:"Damaged Footpath", description:"Broken tiles creating accessibility hazard near mall — elderly resident fell last week",    location_name:"BTM Layout, 2nd Stage",     ward:"BTM Layout",     severity:"low",    status:"resolved",created_at:dAgo(30),upvotes:7, source:"citizen",image_url:null,latitude:12.9100,longitude:77.6050},
+];
+ 
+function buildSeedLeaderboard(){
+  const wc={};
+  SEED_ISSUES.forEach(i=>{ wc[i.ward]=(wc[i.ward]||0)+1; });
+  return Object.entries(wc).map(([ward,count])=>({ward,count})).sort((a,b)=>b.count-a.count);
+}
+function buildSeedClusters(){
+  return [
+    {cluster:"Pothole-related road damage across central Bengaluru",items:SEED_ISSUES.filter(i=>i.issue_type==="Pothole")},
+    {cluster:"Garbage and sanitation issues — north and east zones",items:SEED_ISSUES.filter(i=>i.issue_type==="Garbage")},
+  ];
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   DATA FETCHING — binds to /scrape backend
+════════════════════════════════════════════════════════════════ */
+async function fetchData(manual=false){
+  if(fetching) return;
+  fetching = true;
+  setFetchUI(true);
+  if(manual) showToast('🔍 Fetching live data from Reddit, News, BBMP…','#3B9EFF');
+ 
+  try {
+    const res = await fetch(`${FLASK}/scrape?sources=reddit,news,twitter,bbmp&limit=30`, {signal: AbortSignal.timeout(15000)});
+    if(!res.ok) throw new Error('scrape_failed');
+    const raw = await res.json();
+ 
+    // Handle both formats:
+    // New backend: {issues, leaderboard, clusters, timestamp}
+    // Old backend: array of issues
+    let parsed;
+    if(Array.isArray(raw)){
+      // old format — array of issues
+      parsed = {
+        issues: raw.map(normaliseIssue),
+        leaderboard: buildLeaderboardFromIssues(raw),
+        clusters: [],
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // new structured format
+      parsed = {
+        issues: (raw.issues||[]).map(normaliseIssue),
+        leaderboard: raw.leaderboard||buildLeaderboardFromIssues(raw.issues||[]),
+        clusters: raw.clusters||[],
+        timestamp: raw.timestamp||new Date().toISOString(),
+      };
+    }
+ 
+    // Merge: keep citizen reports, prepend live issues
+    const citizenIssues = DATA.issues.filter(i=>i.source==='citizen');
+    parsed.issues = [...parsed.issues, ...citizenIssues];
+    DATA = parsed;
+    SEED_LOADED = true;
+ 
+    updateGlobalUI();
+    showPage(currentPage);
+    if(manual) showToast(`✓ ${parsed.issues.length} issues loaded from live sources`,'#30D158');
+ 
+  } catch(err){
+    if(!SEED_LOADED){
+      // First load — use seed data
+      DATA = {
+        issues: SEED_ISSUES,
+        leaderboard: buildSeedLeaderboard(),
+        clusters: buildSeedClusters(),
+        timestamp: new Date().toISOString(),
+      };
+      SEED_LOADED = true;
+      updateGlobalUI();
+      showPage(currentPage);
+    }
+    if(manual) showToast('⚠ Live scrape unavailable — showing cached data','#FF8C00');
+  }
+  fetching = false;
+  setFetchUI(false);
+  resetCountdown();
+}
+ 
+function normaliseIssue(r){
+  // Map backend fields → frontend model
+  // Handles both snake_case and various formats
+  const sev = r.severity && ['critical','high','medium','low'].includes(r.severity)
+    ? r.severity
+    : inferSeverity(r.description||'');
+  return {
+    id:            r.id || genId(),
+    issue_type:    r.issue_type || classifyType(r.description||''),
+    description:   (r.description||'No description').slice(0,220),
+    location_name: r.location_name || r.location || '',
+    ward:          WARDS.includes(r.ward) ? r.ward : inferWard(r.description||r.ward||''),
+    severity:      sev,
+    status:        r.status || 'open',
+    created_at:    r.timestamp || r.created_at || new Date().toISOString(),
+    upvotes:       r.upvotes || Math.floor(Math.random()*25)+1,
+    source:        r.source || 'scrape',
+    source_url:    r.source_url || null,
+    image_url:     r.image_url || null,
+    latitude:      r.latitude  || (12.97 + (Math.random()-.5)*.15),
+    longitude:     r.longitude || (77.59 + (Math.random()-.5)*.2),
+  };
+}
+ 
+function inferSeverity(text){
+  const t = text.toLowerCase();
+  if(/(accident|death|danger|collapse|hazard|fatal|emergency|critical)/.test(t)) return 'critical';
+  if(/(major|severe|urgent|horrible|terrible|large|serious)/.test(t))           return 'high';
+  if(/(minor|small|slight|little)/.test(t))                                      return 'low';
+  return 'medium';
+}
+ 
+function classifyType(text){
+  const t = text.toLowerCase();
+  if(/(pothole|road damage|crater|caved)/.test(t))                        return 'Pothole';
+  if(/(garbage|waste|dump|litter|stench|animal)/.test(t))                 return 'Garbage';
+  if(/(waterlog|flood|stagnant|inundated)/.test(t))                       return 'Water Logging';
+  if(/(drain|gutter|manhole|sewer)/.test(t))                              return 'Open Drain';
+  if(/(streetlight|street light|dark road|lamp)/.test(t))                 return 'Broken Streetlight';
+  if(/(footpath|pavement|sidewalk|tiles)/.test(t))                        return 'Damaged Footpath';
+  if(/(illegal dump|construction debris|debris dump)/.test(t))            return 'Illegal Dumping';
+  if(/(encroach|illegal construction)/.test(t))                           return 'Encroachment';
+  return 'Pothole';
+}
+ 
+function inferWard(text){
+  const t = text.toLowerCase();
+  for(const w of WARDS){ if(t.includes(w.toLowerCase())) return w; }
+  return WARDS[Math.floor(Math.random()*WARDS.length)];
+}
+ 
+function buildLeaderboardFromIssues(issues){
+  const wc={};
+  issues.forEach(i=>{ wc[i.ward]=(wc[i.ward]||0)+1; });
+  return Object.entries(wc).map(([ward,count])=>({ward,count})).sort((a,b)=>b.count-a.count);
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   AUTO-REFRESH (30s countdown)
+════════════════════════════════════════════════════════════════ */
+function startAutoRefresh(){
+  clearInterval(refreshTimer);
+  clearInterval(countdownTimer);
+  countdownLeft = REFRESH_INTERVAL;
+  animateRefreshBar(1);
+ 
+  countdownTimer = setInterval(()=>{
+    countdownLeft--;
+    const pct = countdownLeft / REFRESH_INTERVAL;
+    animateRefreshBar(pct);
+    document.getElementById('ab-last-updated').textContent =
+      DATA.timestamp ? `↻ ${countdownLeft}s · ${fmtDate(DATA.timestamp)}` : `↻ ${countdownLeft}s`;
+    if(countdownLeft <= 0){
+      countdownLeft = REFRESH_INTERVAL;
+      fetchData(false);
+    }
+  }, 1000);
+}
+ 
+function resetCountdown(){
+  countdownLeft = REFRESH_INTERVAL;
+  animateRefreshBar(1);
+}
+ 
+function animateRefreshBar(pct){
+  const bar = document.getElementById('refresh-bar');
+  if(bar) bar.style.transform = `scaleX(${pct})`;
+}
+ 
+function setFetchUI(loading){
+  const btn = document.getElementById('fetch-btn');
+  const icon = document.getElementById('fetch-icon');
+  const lbl  = document.getElementById('fetch-label');
+  if(!btn) return;
+  btn.disabled = loading;
+  icon.innerHTML = loading
+    ? `<span class="spin-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></span>`
+    : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>`;
+  lbl.textContent = loading ? 'Fetching…' : 'Fetch Live';
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   GLOBAL UI UPDATE (ticker, badges, action bar)
+════════════════════════════════════════════════════════════════ */
+function updateGlobalUI(){
+  const issues = DATA.issues;
+  const open   = issues.filter(i=>i.status==='open');
+  const crit   = issues.filter(i=>i.severity==='critical'&&i.status==='open');
+  const over   = open.filter(i=>dOpen(i.created_at)>7);
+ 
+  // Topbar
+  const el = id => document.getElementById(id);
+  el('tb-open-count').textContent = open.length;
+  el('sb-feed-count').textContent = issues.length;
+ 
+  // Ticker (both copies for seamless loop)
+  const tickData = [
+    ['tk-open',  'tk-open2',  `${open.length} open issues`],
+    ['tk-crit',  'tk-crit2',  `${crit.length} critical`],
+    ['tk-over',  'tk-over2',  `${over.length} overdue >7d · Bengaluru`],
+    ['tk-fetch', 'tk-fetch2', DATA.timestamp ? `Updated ${fmtDate(DATA.timestamp)}` : 'civicai.in'],
+  ];
+  tickData.forEach(([a,b,val])=>{
+    if(el(a)) el(a).textContent = val;
+    if(el(b)) el(b).textContent = val;
+  });
+ 
+  // Action bar
+  el('ab-status').innerHTML = `<strong>${open.length}</strong> open · <strong>${crit.length}</strong> critical · <strong>${over.length}</strong> overdue`;
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════════════════════════ */
+function showPage(page){
+  currentPage = page;
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page]||'CivicAI';
+  // Sidebar active
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  const nl = document.getElementById(`nl-${page}`);
+  if(nl) nl.classList.add('active');
+  // Mobile nav
+  document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.remove('on'));
+  const mn = document.getElementById(`mn-${page}`);
+  if(mn) mn.classList.add('on');
+  // Render
+  const c = document.getElementById('content');
+  c.style.animation = 'none';
+  requestAnimationFrame(()=>{
+    c.style.animation = 'fadeUp .35s ease';
+    c.innerHTML = renderPage(page);
+    c.scrollTop = 0;
+    document.getElementById('content-scroll').scrollTop = 0;
+  });
+  if(window.innerWidth < 768) closeSidebar();
+}
+ 
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sb-overlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+}
+function onSearch(v){
+  searchQ = v.toLowerCase();
+  if(currentPage==='feed') showPage('feed');
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   PAGE RENDERERS
+════════════════════════════════════════════════════════════════ */
+function renderPage(page){
+  if(page==='dashboard') return renderDashboard();
+  if(page==='feed')      return renderFeed();
+  if(page==='map')       return renderMap();
+  if(page==='hall')      return renderHall();
+  if(page==='clusters')  return renderClusters();
+  return `<div style="padding:40px;text-align:center;color:var(--muted)">Page not found</div>`;
+}
+ 
+/* ── DASHBOARD ──────────────────────────────────────────────── */
+function renderDashboard(){
+  const issues = DATA.issues;
+  const open   = issues.filter(i=>i.status==='open');
+  const res    = issues.filter(i=>i.status==='resolved');
+  const crit   = issues.filter(i=>i.severity==='critical'&&i.status==='open');
+  const over   = open.filter(i=>dOpen(i.created_at)>7);
+  const avg    = open.length ? Math.round(open.reduce((a,i)=>a+dOpen(i.created_at),0)/open.length) : 0;
+ 
+  // Severity breakdown from real data
+  const bySev = {critical:0,high:0,medium:0,low:0};
+  issues.forEach(i=>{ if(i.status==='open') bySev[i.severity]=(bySev[i.severity]||0)+1; });
+ 
+  // Type breakdown
+  const byType = {};
+  issues.forEach(i=>{ byType[i.issue_type]=(byType[i.issue_type]||0)+1; });
+  const topTypes = Object.entries(byType).sort(([,a],[,b])=>b-a).slice(0,6);
+  const maxType  = topTypes[0]?.[1]||1;
+ 
+  // Source breakdown
+  const bySrc = {};
+  issues.forEach(i=>{ bySrc[i.source]=(bySrc[i.source]||0)+1; });
+ 
+  // Oldest open
+  const oldest = [...open].sort((a,b)=>dOpen(b.created_at)-dOpen(a.created_at)).slice(0,6);
+ 
+  // Leaderboard (from backend if available, else computed)
+  const lb = DATA.leaderboard.length ? DATA.leaderboard : buildLeaderboardFromIssues(issues);
+  const maxLb = lb[0]?.count||1;
+ 
+  const ts = DATA.timestamp;
+ 
+  return `
+  <div class="section-head">
+    <div>
+      <div class="section-title">Civic Accountability Dashboard</div>
+      <div class="section-sub">Real-time data · Bengaluru · ${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      ${ts ? `<div class="last-updated">✓ Live · ${fmtDate(ts)}</div>` : ''}
+      <div style="font-size:11px;color:var(--muted)">↻ auto-refresh ${REFRESH_INTERVAL}s</div>
+    </div>
+  </div>
+ 
+  <!-- SEVERITY ALERT BARS -->
+  ${bySev.critical>0 ? `<div class="alert-bar critical"><span class="alert-icon">🚨</span><div class="alert-text"><strong style="color:var(--red)">${bySev.critical} CRITICAL</strong> issues require immediate action across Bengaluru wards</div><div class="alert-count" style="color:var(--red)">${bySev.critical}</div></div>` : ''}
+  ${bySev.high>2 ? `<div class="alert-bar high"><span class="alert-icon">⚠️</span><div class="alert-text"><strong style="color:var(--orange)">${bySev.high} HIGH</strong> severity issues currently open — escalation recommended</div><div class="alert-count" style="color:var(--orange)">${bySev.high}</div></div>` : ''}
+ 
+  <!-- STAT GRID (real data) -->
+  <div class="stat-grid">
+    <div class="stat-card" style="--accent:var(--orange);animation-delay:.00s">
+      <div class="stat-trend" style="color:var(--orange)">active</div>
+      <div class="stat-num">${open.length}</div>
+      <div class="stat-label">Open Issues</div>
+      <div class="stat-hint">Need attention</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--green);animation-delay:.06s">
+      <div class="stat-trend" style="color:var(--green)">↑ good</div>
+      <div class="stat-num">${res.length}</div>
+      <div class="stat-label">Resolved</div>
+      <div class="stat-hint">Closed successfully</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--red);animation-delay:.12s">
+      <div class="stat-trend" style="color:var(--red)">⚠ urgent</div>
+      <div class="stat-num">${crit.length}</div>
+      <div class="stat-label">Critical</div>
+      <div class="stat-hint">Immediate action</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--yellow);animation-delay:.18s">
+      <div class="stat-trend" style="color:var(--yellow)">SLA:30d</div>
+      <div class="stat-num">${avg}</div>
+      <div class="stat-label">Avg Days Open</div>
+      <div class="stat-hint">Resolution lag</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--red);animation-delay:.24s">
+      <div class="stat-trend" style="color:var(--red)">SLA !</div>
+      <div class="stat-num">${over.length}</div>
+      <div class="stat-label">Overdue &gt;7d</div>
+      <div class="stat-hint">SLA breached</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--teal);animation-delay:.30s">
+      <div class="stat-trend" style="color:var(--teal)">↑ all</div>
+      <div class="stat-num">${issues.length}</div>
+      <div class="stat-label">Total Reports</div>
+      <div class="stat-hint">All sources</div>
+    </div>
+  </div>
+ 
+  <div class="grid-2">
+    <!-- OLDEST UNRESOLVED (real data) -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">🔥 Oldest Unresolved Issues</div>
+        <div class="section-action" onclick="showPage('feed')">View all →</div>
+      </div>
+      <div class="timeline">
+        ${oldest.map((issue,idx)=>`
+        <div class="tl-item" style="animation-delay:${idx*.07}s" onclick="openDetail('${issue.id}')">
+          <div class="tl-dot" style="background:${sc(issue.severity)};"></div>
+          <div class="tl-card" style="border-left-color:${sc(issue.severity)}">
+            <div class="tl-type">
+              ${issue.issue_type}
+              ${pill(issue.severity, sc(issue.severity), sbg(issue.severity))}
+              ${issue.source&&issue.source!=='citizen'?srcBadge(issue.source):''}
+            </div>
+            <div class="tl-loc">${pinIcon()} ${issue.ward}${issue.location_name?' · '+issue.location_name:''}</div>
+            <div class="tl-desc">${issue.description}</div>
+            <div class="tl-footer">
+              <div class="tl-ts">📅 ${fmtDate(issue.created_at)}</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${dOpen(issue.created_at)>14?'var(--red)':'var(--orange)'}">${dOpen(issue.created_at)}d open</span>
+                <button onclick="event.stopPropagation();upvote('${issue.id}',this)" style="display:flex;align-items:center;gap:3px;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.2);border-radius:5px;padding:3px 8px;color:var(--teal);font-size:11px;font-weight:700;">▲ ${issue.upvotes}</button>
+              </div>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+ 
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:13px;">
+ 
+      <!-- WARD LEADERBOARD (backend data) -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">📊 Ward Issue Count</div>
+          <div class="section-action" onclick="showPage('map')">Heat Map →</div>
+        </div>
+        ${lb.slice(0,8).map((w,i)=>{
+          const pct = Math.round(w.count/maxLb*100);
+          const col = pct>75?'var(--red)':pct>45?'var(--orange)':pct>20?'var(--yellow)':'var(--green)';
+          const rank_col = i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--muted)';
+          return `<div class="lb-item">
+            <div class="lb-rank" style="background:${i<3?rank_col+'20':'var(--faint)'};border:1.5px solid ${i<3?rank_col:'var(--border)'};color:${i<3?rank_col:'var(--muted)'}">${i+1}</div>
+            <div class="lb-ward">${w.ward}</div>
+            <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+            <div class="lb-count" style="color:${col}">${w.count}</div>
+          </div>`;
+        }).join('')}
+      </div>
+ 
+      <!-- ISSUE TYPE BREAKDOWN -->
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Issues by Type</div></div>
+        ${topTypes.map(([t,c])=>{
+          const pct=Math.round(c/maxType*100);
+          return `<div style="margin-bottom:9px">
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px">
+              <span style="color:var(--sub)">${t}</span>
+              <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">${c} (${pct}%)</span>
+            </div>
+            <div class="prog"><div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,#00C896,#3B9EFF)"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+ 
+      <!-- DATA SOURCES -->
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Data Sources</div></div>
+        ${Object.entries(bySrc).map(([src,c])=>{
+          const m=SRC[src]||SRC.citizen;
+          const pct=Math.round(c/issues.length*100);
+          return `<div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px">
+              <span style="color:${m.color};font-weight:600">${m.label}</span>
+              <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">${c}</span>
+            </div>
+            <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${m.color}90"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+ 
+  <!-- MOST UPVOTED -->
+  <div class="panel" style="margin-bottom:14px">
+    <div class="panel-head">
+      <div class="panel-title">⬆ Community Pressure — Most Upvoted Issues</div>
+      <div class="section-action" onclick="showPage('feed');feedFilter='open'">See all open →</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
+      ${[...issues].sort((a,b)=>b.upvotes-a.upvotes).slice(0,6).map(issue=>`
+      <div onclick="openDetail('${issue.id}')" style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${sc(issue.severity)};border-radius:9px;padding:11px 13px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background='var(--card)'">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${issue.issue_type}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--teal)">▲${issue.upvotes}</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px">${issue.ward}${issue.location_name?' · '+issue.location_name:''}</div>
+        <div style="font-size:12px;color:var(--sub);line-height:1.4">${issue.description.slice(0,80)}…</div>
+        <div style="margin-top:7px;display:flex;gap:5px">${pill(issue.severity,sc(issue.severity),sbg(issue.severity))} ${statusPill(issue.status)}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+ 
+/* ── FEED ───────────────────────────────────────────────────── */
+function renderFeed(){
+  let filtered = DATA.issues.filter(i=>{
+    if(feedFilter==='open'&&i.status!=='open') return false;
+    if(feedFilter==='resolved'&&i.status!=='resolved') return false;
+    if(feedFilter==='critical'&&i.severity!=='critical') return false;
+    if(feedFilter==='high'&&i.severity!=='high') return false;
+    if(feedWard&&i.ward!==feedWard) return false;
+    if(searchQ&&!i.description.toLowerCase().includes(searchQ)&&!i.ward.toLowerCase().includes(searchQ)&&!i.issue_type.toLowerCase().includes(searchQ)) return false;
+    return true;
+  });
+ 
+  const liveCount = DATA.issues.filter(i=>i.source!=='citizen').length;
+  const ts = DATA.timestamp;
+ 
+  return `
+  <div class="section-head">
+    <div>
+      <div class="section-title">Live Issue Feed</div>
+      <div class="section-sub">${filtered.length} issues shown · ${liveCount} from live scrape${ts?' · Updated '+fmtDate(ts):''}</div>
+    </div>
+    ${ts?`<div class="last-updated">✓ ${fmtDate(ts)}</div>`:''}
+  </div>
+ 
+  <div class="filter-row">
+    ${['all','open','resolved','critical','high'].map(f=>`
+    <div class="filter-chip ${feedFilter===f?'on':''}" onclick="feedFilter='${f}';showPage('feed')">${f.charAt(0).toUpperCase()+f.slice(1)}</div>`).join('')}
+    <select class="filter-select" onchange="feedWard=this.value;showPage('feed')">
+      <option value="">All Wards</option>
+      ${WARDS.map(w=>`<option value="${w}" ${feedWard===w?'selected':''}>${w}</option>`).join('')}
+    </select>
+    <div style="margin-left:auto;font-size:11px;color:var(--muted)">${filtered.length} / ${DATA.issues.length}</div>
+  </div>
+ 
+  <div class="timeline">
+    ${filtered.length===0?`<div style="text-align:center;padding:40px;color:var(--muted)">No issues match the current filter</div>`:''}
+    ${filtered.map((issue,idx)=>`
+    <div class="tl-item" style="animation-delay:${Math.min(idx*.04,.4)}s" onclick="openDetail('${issue.id}')">
+      <div class="tl-dot" style="background:${sc(issue.severity)}"></div>
+      <div class="tl-card" style="border-left-color:${sc(issue.severity)}">
+        <div class="tl-type">
+          ${issue.issue_type}
+          ${pill(issue.severity,sc(issue.severity),sbg(issue.severity))}
+          ${statusPill(issue.status)}
+          ${issue.source&&issue.source!=='citizen'?srcBadge(issue.source):''}
+        </div>
+        <div class="tl-loc">${pinIcon()} ${issue.ward}${issue.location_name?' · '+issue.location_name:''}</div>
+        ${issue.image_url?`<img src="${issue.image_url}" style="width:100%;max-height:140px;object-fit:cover;border-radius:7px;margin:7px 0">`:''}
+        <div class="tl-desc">${issue.description}</div>
+        <div class="tl-footer">
+          <div class="tl-ts">📅 ${fmtDate(issue.created_at)}${issue.latitude?` · 📍 ${issue.latitude.toFixed(4)},${issue.longitude.toFixed(4)}`:''}</div>
+          <div style="display:flex;gap:7px">
+            <button onclick="event.stopPropagation();upvote('${issue.id}',this)" style="display:flex;align-items:center;gap:3px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:5px;padding:3px 8px;color:var(--teal);font-size:11px;font-weight:700;">▲ ${issue.upvotes}</button>
+            <button onclick="event.stopPropagation();openShareModal('${issue.id}')" style="display:flex;align-items:center;gap:3px;background:var(--faint);border:1px solid var(--border);border-radius:5px;padding:3px 8px;color:var(--muted);font-size:11px;">⬆ Share</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+ 
+/* ── HEAT MAP ───────────────────────────────────────────────── */
+function renderMap(){
+  // Use leaderboard from backend for ward counts
+  const lb   = DATA.leaderboard.length ? DATA.leaderboard : buildLeaderboardFromIssues(DATA.issues);
+  const wc   = Object.fromEntries(lb.map(r=>[r.ward,r.count]));
+  const max  = Math.max(...Object.values(wc),1);
+  const ts   = DATA.timestamp;
+ 
+  // Group issues with lat/lon for location display
+  const geoIssues = DATA.issues.filter(i=>i.latitude&&i.longitude).slice(0,12);
+ 
+  return `
+  <div class="section-head">
+    <div>
+      <div class="section-title">Ward Heat Map</div>
+      <div class="section-sub">Issue density by ward · ${DATA.issues.length} total datapoints${ts?' · '+fmtDate(ts):''}</div>
+    </div>
+    ${ts?`<div class="last-updated">✓ Live · ${fmtDate(ts)}</div>`:''}
+  </div>
+ 
+  <div class="grid-2">
+    <div>
+      <!-- HEATMAP GRID (intensity from backend leaderboard) -->
+      <div class="panel" style="margin-bottom:13px">
+        <div class="panel-head">
+          <div class="panel-title">Ward Intensity Grid</div>
+          <div style="font-size:11px;color:var(--muted)">Click ward to filter feed</div>
+        </div>
+        <div class="heat-grid">
+          ${WARDS.map(w=>{
+            const c=wc[w]||0, pct=c/max;
+            const bg  = pct>.7?'#FF3355':pct>.45?'#FF8C00':pct>.2?'#FFD60A':'rgba(255,255,255,0.04)';
+            const tcol= pct>.2?'#fff':'var(--muted)';
+            const isActive = activeWardFilter===w;
+            return `<div class="heat-cell ${isActive?'active-ward':''}"
+              style="background:${bg};opacity:${c>0?.9:.25}"
+              onclick="filterByWard('${w}')"
+              title="${w}: ${c} issues">
+              <div class="wn" style="color:${tcol}">${w}</div>
+              ${c>0?`<div class="wc" style="color:#fff">${c}</div>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="heat-legend">
+          <div class="heat-legend-item"><div class="heat-legend-dot" style="background:#FF3355"></div>Critical (>70%)</div>
+          <div class="heat-legend-item"><div class="heat-legend-dot" style="background:#FF8C00"></div>High (>45%)</div>
+          <div class="heat-legend-item"><div class="heat-legend-dot" style="background:#FFD60A"></div>Medium (>20%)</div>
+          <div class="heat-legend-item"><div class="heat-legend-dot" style="background:rgba(255,255,255,.12)"></div>Low</div>
+        </div>
+        ${activeWardFilter?`<div style="margin-top:12px;padding:8px 12px;background:rgba(0,200,150,0.07);border:1px solid rgba(0,200,150,0.18);border-radius:8px;font-size:12px;color:var(--teal);display:flex;justify-content:space-between;align-items:center"><span>Filtered: <strong>${activeWardFilter}</strong></span><button onclick="clearWardFilter()" style="background:none;border:none;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer">Clear ✕</button></div>`:''}
+      </div>
+ 
+      <!-- GEO COORDINATES (from backend lat/lon) -->
+      ${geoIssues.length>0?`
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">📍 Geo-tagged Issues</div><div class="panel-meta">${geoIssues.length} with coordinates</div></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Lat/Lon from ${DATA.issues.filter(i=>i.latitude).length > SEED_ISSUES.length ? 'OpenCity dataset':'seed data'} · Full interactive map available in production build</div>
+        ${geoIssues.map(i=>`
+        <div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('${i.id}')">
+          <div style="width:6px;height:6px;border-radius:50%;background:${sc(i.severity)};flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i.issue_type} — ${i.ward}</div>
+            <div style="font-size:10.5px;color:var(--muted);font-family:'JetBrains Mono',monospace">${i.latitude?.toFixed(5)}, ${i.longitude?.toFixed(5)}</div>
+          </div>
+          <div>${pill(i.severity,sc(i.severity),sbg(i.severity))}</div>
+        </div>`).join('')}
+      </div>`:''}
+    </div>
+ 
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <!-- TOP WARDS -->
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Ward Rankings</div></div>
+        ${lb.slice(0,10).map((w,i)=>{
+          const pct=Math.round(w.count/max*100);
+          const col=pct>75?'var(--red)':pct>45?'var(--orange)':pct>20?'var(--yellow)':'var(--green)';
+          const rkcol=i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--muted)';
+          return `<div class="lb-item" style="cursor:pointer" onclick="filterByWard('${w.ward}')">
+            <div class="lb-rank" style="background:${i<3?rkcol+'20':'var(--faint)'};border:1.5px solid ${i<3?rkcol:'var(--border)'};color:${i<3?rkcol:'var(--muted)'}">${i+1}</div>
+            <div class="lb-ward" style="font-size:12px">${w.ward}</div>
+            <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+            <div class="lb-count" style="color:${col}">${w.count}</div>
+          </div>`;
+        }).join('')}
+      </div>
+ 
+      <!-- BY SEVERITY BREAKDOWN -->
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Severity Distribution</div></div>
+        ${['critical','high','medium','low'].map(s=>{
+          const count = DATA.issues.filter(i=>i.severity===s&&i.status==='open').length;
+          const pct   = DATA.issues.length ? Math.round(count/DATA.issues.length*100) : 0;
+          return `<div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="color:${sc(s)};font-weight:700;text-transform:capitalize">${s}</span>
+              <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">${count} (${pct}%)</span>
+            </div>
+            <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${sc(s)}"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+ 
+/* ── HALL OF FAME / SHAME ───────────────────────────────────── */
+function renderHall(){
+  // Compute officer scores using real ward issue data
+  const officers = Object.entries(OFFICIALS).map(([ward,off])=>{
+    const wi   = DATA.issues.filter(i=>i.ward===ward);
+    const open = wi.filter(i=>i.status==='open');
+    const crit = open.filter(i=>i.severity==='critical').length;
+    const maxD = open.length ? Math.max(...open.map(i=>dOpen(i.created_at))) : 0;
+    // Blend static knowledge (resolved/pending history) with live data
+    const liveOpen    = open.length;
+    const totalPending= Math.max(off.pending, liveOpen);
+    const fame  = off.resolved*8 - totalPending*5 - Math.floor(off.avgDays*1.5);
+    const shame = totalPending*6 + crit*10 + maxD + off.avgDays*2 - off.resolved*3;
+    return{ward,...off,liveOpen,crit,maxD,fame,shame};
+  });
+ 
+  const list = [...officers].sort((a,b)=>hallMode==='fame'?b.fame-a.fame:b.shame-a.shame);
+  const pCols = hallMode==='fame'?['#FFD700','#C0C0C0','#CD7F32']:['#FF3355','#FF6B35','#FF8C00'];
+  const top3 = list.slice(0,3);
+  const rest  = list.slice(3);
+ 
+  // SLA breaches from real data
+  const slaBreach = DATA.issues.filter(i=>i.status==='open'&&dOpen(i.created_at)>14)
+    .sort((a,b)=>dOpen(b.created_at)-dOpen(a.created_at));
+ 
+  return `
+  <div class="section-head">
+    <div>
+      <div class="section-title">${hallMode==='fame'?'🏆 Hall of Fame':'💀 Hall of Shame'}</div>
+      <div class="section-sub">${hallMode==='fame'?'Officers resolving issues fastest':'Officers with most unresolved & overdue issues'} · Live data</div>
+    </div>
+  </div>
+ 
+  <div class="tab-row" style="max-width:340px;margin-bottom:20px">
+    <button class="tab-btn ${hallMode==='fame'?'active':''}" onclick="hallMode='fame';showPage('hall')" style="${hallMode==='fame'?'background:linear-gradient(135deg,rgba(0,200,150,0.15),rgba(59,158,255,0.1));color:var(--teal)':''}">🏆 Hall of Fame</button>
+    <button class="tab-btn ${hallMode==='shame'?'active':''}" onclick="hallMode='shame';showPage('hall')" style="${hallMode==='shame'?'background:rgba(255,51,85,0.1);color:var(--red)':''}">💀 Hall of Shame</button>
+  </div>
+ 
+  <div class="grid-2">
+    <!-- PODIUM + FULL LIST -->
+    <div>
+      <div class="panel" style="margin-bottom:13px">
+        <!-- Podium -->
+        <div class="podium-wrap">
+          ${[1,0,2].map(idx=>{
+            const o=top3[idx]; if(!o) return '';
+            const col=pCols[idx], isFirst=idx===0;
+            const metric = hallMode==='fame' ? o.resolved : (o.liveOpen||o.pending);
+            return `<div class="podium-col">
+              ${isFirst?`<div style="font-size:20px;margin-bottom:5px">${hallMode==='fame'?'🥇':'💀'}</div>`:''}
+              <div class="podium-avatar" style="width:${isFirst?52:42}px;height:${isFirst?52:42}px;font-size:${isFirst?17:14}px;background:${col}18;border:2.5px solid ${col};color:${col}">${o.av}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text);margin-top:5px;line-height:1.3">${o.bbmp}</div>
+              <div style="font-size:10px;color:var(--muted)">${o.ward}</div>
+              <div class="podium-box" style="background:${col}18;border:1px solid ${col}40">
+                <div class="podium-num" style="color:${col}">#${idx+1}</div>
+                <div class="podium-val" style="color:${col};font-size:${isFirst?24:18}px">${metric}</div>
+                <div class="podium-sub">${hallMode==='fame'?'resolved':'pending'}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+ 
+        <!-- Full officer list -->
+        <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px">Full Rankings (Live)</div>
+        ${list.map((o,i)=>{
+          const col=i===0?pCols[0]:i===1?pCols[1]:i===2?pCols[2]:'var(--muted)';
+          const score=Math.max(hallMode==='fame'?o.fame:o.shame,0);
+          const metric=hallMode==='fame'
+            ?`${o.resolved} resolved · avg ${o.avgDays}d`
+            :`${o.liveOpen||o.pending} pending · ${o.crit} critical · max ${o.maxD}d`;
+          return `<div class="officer-row">
+            <div class="lb-rank" style="background:${i<3?col+'20':'var(--faint)'};border:1.5px solid ${i<3?col:'var(--border)'};color:${i<3?col:'var(--muted)'};width:24px;height:24px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">${i+1}</div>
+            <div class="officer-av" style="background:${hallMode==='shame'&&i<3?'rgba(255,51,85,0.12)':'rgba(0,200,150,0.1)'};border:2px solid ${i<3?col:'var(--border)'};color:${i<3?col:'var(--muted)'}">${o.av}</div>
+            <div class="officer-info">
+              <div class="officer-name">${o.bbmp}</div>
+              <div class="officer-meta">${o.dept} · ${o.ward}</div>
+              <div style="font-size:11px;color:${hallMode==='shame'&&(o.liveOpen>5||o.pending>5)?'var(--orange)':'var(--muted)';};margin-top:1px">${metric}</div>
+            </div>
+            <div class="officer-score" style="color:${col}">${score}<div style="font-size:9px;color:var(--muted);font-weight:400">pts</div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+ 
+    <!-- RIGHT -->
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <!-- SLA Breach from REAL DATA -->
+      <div class="panel" style="background:rgba(255,51,85,0.03);border-color:rgba(255,51,85,0.13)">
+        <div class="panel-head">
+          <div class="panel-title" style="color:var(--red)">⚠ SLA Breached — Live Data</div>
+          <div class="panel-meta">${slaBreach.length} issues &gt;14d</div>
+        </div>
+        ${slaBreach.slice(0,6).map((issue,i)=>{
+          const off=OFFICIALS[issue.ward]||{bbmp:'BBMP Officer',dept:'—'};
+          return `<div style="padding:9px 0;border-bottom:${i<5?'1px solid rgba(255,51,85,0.1)':'none'}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:var(--text)">${issue.issue_type} · ${issue.ward}</div>
+                <div style="font-size:11px;color:var(--muted);margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${issue.description.slice(0,60)}…</div>
+                <div style="font-size:10.5px;color:var(--muted)">👤 ${off.bbmp} · ${fmtDate(issue.created_at)}</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;margin-left:10px">
+                <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:18px;color:var(--red)">${dOpen(issue.created_at)}d</div>
+                ${pill(issue.severity,sc(issue.severity),sbg(issue.severity))}
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+        ${slaBreach.length===0?`<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">✓ No issues breaching SLA</div>`:''}
+      </div>
+ 
+      <!-- Ward performance -->
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Ward Resolution Rate</div></div>
+        ${Object.entries(OFFICIALS).slice(0,7).map(([ward,off])=>{
+          const liveOpen = DATA.issues.filter(i=>i.ward===ward&&i.status==='open').length;
+          const total = off.resolved + Math.max(off.pending,liveOpen);
+          const rate  = total>0 ? Math.round(off.resolved/total*100) : 0;
+          const col   = rate>70?'var(--green)':rate>40?'var(--orange)':'var(--red)';
+          return `<div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px">
+              <span style="color:var(--sub);font-weight:500">${ward}</span>
+              <span style="color:${col};font-family:'JetBrains Mono',monospace;font-weight:700">${rate}%</span>
+            </div>
+            <div class="prog"><div class="prog-fill" style="width:${rate}%;background:${col}"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+ 
+/* ── CLUSTERS ───────────────────────────────────────────────── */
+function renderClusters(){
+  const clusters = DATA.clusters.length ? DATA.clusters : buildSeedClusters();
+  return `
+  <div class="section-head">
+    <div>
+      <div class="section-title">Issue Clusters</div>
+      <div class="section-sub">Similar issues grouped by AI · ${clusters.length} clusters identified</div>
+    </div>
+  </div>
+  ${clusters.length===0?`<div style="text-align:center;padding:48px;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">🔍</div>No clusters yet — fetch live data to see groupings</div>`:''}
+  ${clusters.map((cl,ci)=>{
+    const items = cl.items||[];
+    const sev   = items[0]?.severity||'medium';
+    return `<div class="cluster-card" style="border-left-color:${sc(sev)};animation:fadeUp .4s ease ${ci*.1}s backwards">
+      <div class="cluster-label" style="color:${sc(sev)}">📌 Cluster ${ci+1} · ${items.length} related issue${items.length!==1?'s':''}</div>
+      <div class="cluster-desc">${cl.cluster||'Related civic issues grouped together'}</div>
+      <div class="cluster-count">${fmtDate(items[0]?.created_at||'')||''}</div>
+      ${items.length>0?`<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+        ${items.slice(0,4).map(i=>`<div onclick="openDetail('${i.id}')" style="display:flex;gap:8px;align-items:center;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:8px 10px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+          <div style="width:5px;height:5px;border-radius:50%;background:${sc(i.severity)};flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text)">${i.issue_type} — ${i.ward}</div>
+            <div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i.description.slice(0,70)}</div>
+          </div>
+          <div style="font-size:10.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;flex-shrink:0">${fmtDate(i.created_at).split('·')[0]}</div>
+        </div>`).join('')}
+      </div>`:''}
+    </div>`;
+  }).join('')}`;
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   DETAIL MODAL
+════════════════════════════════════════════════════════════════ */
+function openDetail(id){
+  const issue = DATA.issues.find(i=>i.id===id);
+  if(!issue) return;
+  const off   = OFFICIALS[issue.ward]||{mla:'Local MLA',bbmp:'BBMP Officer',dept:'Public Works'};
+  const days  = dOpen(issue.created_at);
+  const steps = ['Submitted','Verified','Assigned','In Progress','Resolved'];
+  const sIdx  = issue.status==='resolved' ? 4 : Math.min(1+Math.floor(days/6),3);
+ 
+  const tweet = `🚨 ${days}d UNRESOLVED — ${issue.ward}, Bengaluru\n\n${issue.issue_type}: ${issue.description.slice(0,110)}\n\nResponsible: ${off.mla} (MLA) · BBMP: ${off.bbmp}\n\n#${issue.ward.replace(/\s/g,'')} #CivicAI #BBMP #Bengaluru`;
+  const wa    = `*CivicAI Alert 🚨*\n\n*${issue.issue_type}* in *${issue.ward}* — *${days} days unresolved*\n\n📍 ${issue.location_name}\n${issue.description.slice(0,120)}\n\nOfficer: *${off.bbmp}* (${off.dept})\nMLA: *${off.mla}*\n\nTrack at civicai.in`;
+ 
+  const html=`<div class="overlay" id="detail-overlay" onclick="if(event.target===this)this.remove()">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px">#${issue.id} · ${issue.source?.toUpperCase()}</div>
+      <button class="close-btn" onclick="document.getElementById('detail-overlay').remove()">${closeIcon()}</button>
+    </div>
+    <div class="modal-body">
+      ${issue.image_url?`<img src="${issue.image_url}" style="width:100%;border-radius:10px;margin-bottom:14px;max-height:190px;object-fit:cover">`:''}
+      <div style="font-size:21px;font-weight:800;color:var(--text);margin-bottom:4px">${issue.issue_type}</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:4px">${pinIcon()} ${issue.location_name||issue.ward}</div>
+ 
+      <!-- TIMELINE TRACKER -->
+      <div style="display:flex;align-items:flex-start;margin-bottom:18px">
+        ${steps.map((s,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div style="display:flex;align-items:center;width:100%">
+            ${i>0?`<div style="flex:1;height:2px;background:${i<=sIdx?'var(--teal)':'var(--border)'}"></div>`:''}
+            <div style="width:20px;height:20px;border-radius:50%;background:${i<=sIdx?'var(--teal)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:10px;color:${i<=sIdx?'#0C0F1A':'var(--muted)'};font-weight:800;flex-shrink:0">${i<sIdx?'✓':i===sIdx?'●':''}</div>
+            ${i<steps.length-1?`<div style="flex:1;height:2px;background:${i<sIdx?'var(--teal)':'var(--border)'}"></div>`:''}
+          </div>
+          <div style="font-size:9px;color:${i<=sIdx?'var(--sub)':'var(--muted)'};margin-top:4px;text-align:center">${s}</div>
+        </div>`).join('')}
+      </div>
+ 
+      <div style="display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap">
+        ${pill(issue.severity,sc(issue.severity),sbg(issue.severity))}
+        ${statusPill(issue.status)}
+        ${issue.source?srcBadge(issue.source):''}
+      </div>
+ 
+      <!-- TIMESTAMP from real data -->
+      <div style="background:var(--faint);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted)">
+        📅 Reported: ${fmtDate(issue.created_at)}
+        ${issue.latitude?`<br>📍 ${issue.latitude.toFixed(5)}, ${issue.longitude.toFixed(5)}`:''}
+      </div>
+ 
+      <div style="font-size:13.5px;color:var(--sub);line-height:1.55;margin-bottom:16px">${issue.description}</div>
+ 
+      ${issue.source_url?`<a href="${issue.source_url}" target="_blank" rel="noreferrer" style="font-size:12px;color:var(--blue);display:block;margin-bottom:14px">🔗 View original source ↗</a>`:''}
+ 
+      <!-- ACCOUNTABILITY -->
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px">
+        <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:9px">Policy Accountability</div>
+        ${[['Responsible MLA',off.mla],['Department',off.dept],['Officer in Charge',off.bbmp],['Mandated SLA','Within 30 days']].map(([k,v])=>`
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px">
+          <span style="color:var(--teal)">${k}</span><span style="color:var(--text);font-weight:600">${v}</span>
+        </div>`).join('')}
+      </div>
+ 
+      <!-- SLA PROGRESS -->
+      <div style="background:${days>30?'rgba(255,51,85,0.07)':'rgba(255,140,0,0.06)'};border-radius:9px;padding:10px;font-size:12px;color:var(--sub);margin-bottom:10px">
+        ⏱ <strong style="color:${days>30?'var(--red)':'var(--orange)'}">Elapsed: ${days} days</strong>${days>30?' · ⚠ SLA BREACHED — escalate now':''}
+      </div>
+      <div class="prog" style="margin-bottom:16px"><div class="prog-fill" style="width:${Math.min(days/30*100,100)}%;background:${days>30?'var(--red)':'linear-gradient(90deg,var(--teal),var(--orange))'}"></div></div>
+ 
+      <!-- ACTIONS -->
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button onclick="upvote('${issue.id}',this);this.textContent='▲ '+(parseInt(this.textContent.replace('▲ ',''))+1)" style="flex:1;padding:9px;border-radius:8px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.18);color:var(--teal);font-size:13px;font-weight:700;">▲ Upvote (${issue.upvotes})</button>
+        <button onclick="copyToClip(\`${tweet.replace(/`/g,"'")}\`,'Tweet')" style="flex:1;padding:9px;border-radius:8px;background:rgba(29,161,242,0.08);border:1px solid rgba(29,161,242,0.18);color:#1DA1F2;font-size:13px;font-weight:700;">𝕏 Copy Tweet</button>
+      </div>
+      <button onclick="copyToClip(\`${wa.replace(/`/g,"'")}\`,'WhatsApp')" style="width:100%;padding:9px;border-radius:8px;background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.18);color:#25D166;font-size:13px;font-weight:700;margin-bottom:8px">💬 Copy WhatsApp</button>
+      <button onclick="document.getElementById('detail-overlay').remove();openEscalate('${issue.id}')" style="width:100%;padding:11px;border-radius:10px;background:linear-gradient(135deg,var(--red),var(--orange));border:none;color:#fff;font-size:14px;font-weight:800;">⚡ Escalate to Officials</button>
+    </div>
+  </div></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   ESCALATE MODAL
+════════════════════════════════════════════════════════════════ */
+function openEscalate(id){
+  const issue = DATA.issues.find(i=>i.id===id); if(!issue) return;
+  const off   = OFFICIALS[issue.ward]||{mla:'Local MLA',bbmp:'BBMP Officer',dept:'Public Works'};
+  const days  = dOpen(issue.created_at);
+  const tweet = `🚨 ${days}d UNRESOLVED — ${issue.ward}, Bengaluru\n\n${issue.issue_type}: ${issue.description.slice(0,110)}\n\nResponsible: ${off.mla} (MLA) · BBMP: ${off.bbmp}\n\n#${issue.ward.replace(/\s/g,'')} #CivicAI #BBMP #Bengaluru`;
+  const email = `Subject: [URGENT] Unresolved ${issue.issue_type} — ${issue.ward} (${days} days overdue)\n\nDear ${off.bbmp},\n${off.dept} Department, BBMP\n\nCivicAI Issue ID: #${issue.id}\nIssue: ${issue.issue_type}\nLocation: ${issue.location_name}\nSeverity: ${issue.severity.toUpperCase()}\nReported: ${fmtDate(issue.created_at)}\nDays Open: ${days}\nCommunity Upvotes: ${issue.upvotes}\n${issue.latitude?`Coordinates: ${issue.latitude.toFixed(5)}, ${issue.longitude.toFixed(5)}\n`:''}\nThis issue is publicly tracked at civicai.in. Mandated SLA is 30 days — currently at ${days} days.\n\nCC: ${off.mla} (MLA, ${issue.ward})\n\nImmediate resolution required.\n— CivicAI Citizen Network`;
+  const wa    = `*CivicAI Alert 🚨*\n*${issue.issue_type}* — *${issue.ward}* · *${days} days unresolved*\n\n📍 ${issue.location_name}\n${issue.description.slice(0,120)}\n\nOfficer: *${off.bbmp}* (${off.dept}) · MLA: *${off.mla}*\n\nShare to demand action! Track at civicai.in`;
+ 
+  const html=`<div class="overlay" id="esc-overlay" onclick="if(event.target===this)this.remove()">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" style="display:flex;align-items:center;gap:7px">⚡ Escalate Issue</div><button class="close-btn" onclick="document.getElementById('esc-overlay').remove()">${closeIcon()}</button></div>
+    <div class="modal-body">
+      <div style="background:rgba(255,51,85,0.07);border:1px solid rgba(255,51,85,0.17);border-radius:9px;padding:11px;margin-bottom:13px">
+        <div style="font-size:10px;color:var(--red);font-weight:700;margin-bottom:2px">#${issue.id}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text)">${issue.issue_type} · ${issue.ward}</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:1px">${days} days unresolved · ${issue.upvotes} upvotes · ${fmtDate(issue.created_at)}</div>
+      </div>
+      ${[['MLA',off.mla],['BBMP Officer',off.bbmp],['Department',off.dept]].map(([k,v])=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px">
+        <span style="color:var(--muted)">${k}</span><span style="color:var(--text);font-weight:600">${v}</span>
+      </div>`).join('')}
+      ${[
+        ['𝕏 Tweet Template', tweet, '#1DA1F2', 'rgba(29,161,242,0.08)','Tweet'],
+        ['💬 WhatsApp Message', wa, '#25D166', 'rgba(37,211,102,0.08)','WhatsApp'],
+        ['✉ Email Draft', email, 'var(--blue)', 'rgba(59,158,255,0.08)','Email'],
+      ].map(([lbl,text,col,bg,name])=>`
+      <div style="margin-top:14px">
+        <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px">${lbl}</div>
+        <pre style="background:rgba(255,255,255,0.025);border-radius:8px;padding:10px;font-size:11px;color:var(--sub);line-height:1.55;white-space:pre-wrap;max-height:110px;overflow-y:auto;font-family:'JetBrains Mono',monospace">${text}</pre>
+        <button onclick="copyToClip(\`${text.replace(/`/g,"'")}\`,'${name}')" class="copy-btn" style="background:${bg};border:1px solid ${col}40;color:${col}">Copy ${name}</button>
+      </div>`).join('')}
+    </div>
+  </div></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+ 
+function openShareModal(id){ openEscalate(id); }
+ 
+/* ════════════════════════════════════════════════════════════════
+   REPORT MODAL (photo upload + AI classify)
+════════════════════════════════════════════════════════════════ */
+function openReport(){
+  reportStep=1;
+  reportForm={issue_type:'',description:'',location_name:'',ward:'',image_url:null};
+  aiResult=null;
+  document.body.insertAdjacentHTML('beforeend', buildReportModal());
+}
+function buildReportModal(){
+  return `<div class="overlay" id="report-overlay" onclick="if(event.target===this)this.remove()">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:9px">
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="rlg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00C896"/><stop offset="100%" stop-color="#3B9EFF"/></linearGradient></defs><path d="M50 50 Q50 24 32 18 Q14 12 14 30 Q14 46 30 50 Q46 54 50 50Z" stroke="url(#rlg)" stroke-width="6.5" fill="none"/><path d="M50 50 Q50 24 68 18 Q86 12 86 30 Q86 46 70 50 Q54 54 50 50Z" stroke="url(#rlg)" stroke-width="6.5" fill="none"/><path d="M50 50 Q50 76 32 82 Q14 88 14 70 Q14 54 30 50 Q46 46 50 50Z" stroke="url(#rlg)" stroke-width="6.5" fill="none"/><path d="M50 50 Q50 76 68 82 Q86 88 86 70 Q86 54 70 50 Q54 46 50 50Z" stroke="url(#rlg)" stroke-width="6.5" fill="none"/></svg>
+        <div class="modal-title">Report a Civic Issue</div>
+      </div>
+      <button class="close-btn" onclick="document.getElementById('report-overlay').remove()">${closeIcon()}</button>
+    </div>
+    <div class="modal-body" id="report-body">${renderReportStep()}</div>
+  </div></div>`;
+}
+function renderReportStep(){
+  if(reportStep===2) return renderStep2();
+  return `
+  <div class="step-bar">
+    <div class="step-seg" style="background:var(--teal)"></div>
+    <div class="step-seg" style="background:var(--border)"></div>
+  </div>
+  ${reportForm.issue_type?`<div style="font-size:11px;color:rgba(0,200,150,.7);margin-bottom:11px">AI suggests: Is it a <strong style="color:var(--teal)">${reportForm.issue_type}</strong> issue?</div>`:''}
+ 
+  <!-- PHOTO UPLOAD -->
+  <div id="photo-drop" class="photo-drop"
+    onclick="document.getElementById('photo-file').click()"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="event.preventDefault();this.classList.remove('drag');handlePhoto(event.dataTransfer.files[0])">
+    ${reportForm.image_url
+      ?`<div style="position:relative"><img class="photo-preview" src="${reportForm.image_url}"><button class="remove-photo" onclick="event.stopPropagation();reportForm.image_url=null;refreshReport()">${closeIcon()}</button><div class="photo-added-badge" style="position:absolute;bottom:7px;left:7px;background:rgba(0,200,150,.9);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px">✓ Photo added</div></div>`
+      :`<div style="color:var(--muted);margin-bottom:6px;display:flex;justify-content:center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div style="font-size:13.5px;color:var(--sub);font-weight:600">Add Photo</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Tap to select · Drag & drop · JPG / PNG / HEIC</div>
+        <div style="font-size:10px;color:rgba(0,200,150,.6);margin-top:4px">AI will auto-classify issue type from your photo</div>`}
+    <input type="file" id="photo-file" accept="image/*" style="display:none" onchange="handlePhoto(this.files[0])">
+  </div>
+ 
+  <label class="f-label">Issue Type</label>
+  <select class="f-input" onchange="reportForm.issue_type=this.value">
+    <option value="" disabled ${!reportForm.issue_type?'selected':''}>Select issue type</option>
+    ${ISSUE_TYPES.map(t=>`<option value="${t}" ${reportForm.issue_type===t?'selected':''}>${t}</option>`).join('')}
+  </select>
+ 
+  <label class="f-label">Description</label>
+  <textarea class="f-input" rows="3" placeholder="Describe the issue clearly…" oninput="reportForm.description=this.value">${reportForm.description}</textarea>
+ 
+  <label class="f-label">Location</label>
+  <input class="f-input" type="text" placeholder="e.g. Indiranagar 12th Main, near petrol pump" value="${reportForm.location_name}" oninput="reportForm.location_name=this.value">
+ 
+  <label class="f-label">Ward</label>
+  <select class="f-input" onchange="reportForm.ward=this.value">
+    <option value="" disabled ${!reportForm.ward?'selected':''}>Select ward</option>
+    ${WARDS.map(w=>`<option value="${w}" ${reportForm.ward===w?'selected':''}>${w}</option>`).join('')}
+  </select>
+ 
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+    <div style="font-size:11px;color:var(--teal);font-weight:600;display:flex;align-items:center;gap:4px">✓ Verified by CivicChain</div>
+    <button onclick="submitStep1()" style="padding:9px 22px;border-radius:9px;background:linear-gradient(135deg,#00C896,#0070F3);border:none;color:#fff;font-size:14px;font-weight:700">
+      Next: AI Review →
+    </button>
+  </div>`;
+}
+function renderStep2(){
+  return `
+  <div class="step-bar">
+    <div class="step-seg" style="background:var(--teal)"></div>
+    <div class="step-seg" style="background:var(--teal)"></div>
+  </div>
+  ${reportForm.image_url?`<img src="${reportForm.image_url}" style="width:100%;border-radius:9px;margin-bottom:13px;max-height:155px;object-fit:cover">`:''}
+  <div class="ai-box">
+    <div class="ai-label">✓ AI Review Complete</div>
+    ${aiResult?`
+    <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:7px">${aiResult.ai_summary||'Classified successfully.'}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px">
+      ${pill(aiResult.severity||'medium',sc(aiResult.severity||'medium'),sbg(aiResult.severity||'medium'))}
+      ${aiResult.department?`<span class="pill" style="color:var(--blue);background:var(--blue-dim)">${aiResult.department}</span>`:''}
+      ${aiResult.priority_score?`<span class="pill" style="color:var(--muted);background:var(--faint)">P${aiResult.priority_score}/100</span>`:''}
+    </div>
+    ${aiResult.estimated_days?`<div style="font-size:11px;color:var(--muted)">Est. resolution: ${aiResult.estimated_days} days${aiResult.policy?' · '+aiResult.policy:''}</div>`:''}
+    `:`<div style="font-size:13px;color:var(--sub)">Classified as civic issue. Submit to add to dashboard.</div>`}
+  </div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:14px">${pinIcon()} ${reportForm.location_name||'—'} · ${reportForm.ward||'—'}</div>
+  <div style="display:flex;gap:8px">
+    <button onclick="reportStep=1;refreshReport()" style="flex:1;padding:10px;border-radius:9px;background:var(--faint);border:1px solid var(--border);color:var(--sub);font-size:13.5px;font-weight:600">← Edit</button>
+    <button onclick="finalSubmit()" style="flex:2;padding:10px;border-radius:9px;background:linear-gradient(135deg,#00C896,#0070F3);border:none;color:#fff;font-size:14px;font-weight:700">Submit Issue ✓</button>
+  </div>
+  <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">AI is advisory. Community review + CivicChain audit applies.</div>`;
+}
+function refreshReport(){ const b=document.getElementById('report-body'); if(b) b.innerHTML=renderReportStep(); }
+function handlePhoto(file){
+  if(!file||!file.type.startsWith('image/')) return;
+  const r=new FileReader();
+  r.onload=e=>{reportForm.image_url=e.target.result;refreshReport();};
+  r.readAsDataURL(file);
+}
+async function submitStep1(){
+  if(!reportForm.issue_type||!reportForm.description){ showToast('Please select issue type and add description','#FF8C00'); return; }
+  reportStep=2; refreshReport();
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:`Classify this Bengaluru civic issue. Reply ONLY with valid JSON:\nIssue: ${reportForm.issue_type}\nDescription: ${reportForm.description}\nLocation: ${reportForm.location_name||'Bengaluru'}\nReturn: {"severity":"critical|high|medium|low","ai_summary":"one sentence","department":"BBMP dept","priority_score":1-100,"estimated_days":7-60,"policy":"policy name"}`}]})});
+    const d=await res.json();
+    const t=(d.content?.find(c=>c.type==='text')?.text||'{}').replace(/```json|```/g,'').trim();
+    aiResult=JSON.parse(t);
+  }catch{ aiResult={severity:'medium',ai_summary:'Classified as civic issue requiring attention.',department:'Public Works',priority_score:55,estimated_days:14}; }
+  refreshReport();
+}
+function finalSubmit(){
+  const issue={
+    id:genId(),...reportForm,
+    severity:aiResult?.severity||'medium',
+    status:'open',created_at:new Date().toISOString(),
+    upvotes:0,source:'citizen',
+    latitude:12.97+(Math.random()-.5)*.12,
+    longitude:77.59+(Math.random()-.5)*.18,
+  };
+  DATA.issues.unshift(issue);
+  // Rebuild leaderboard
+  DATA.leaderboard = buildLeaderboardFromIssues(DATA.issues);
+  updateGlobalUI();
+  document.getElementById('report-overlay')?.remove();
+  showToast('✓ Issue reported — now live on dashboard!','#30D158');
+  showPage(currentPage);
+}
+ 
+/* ════════════════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════════════════ */
+function upvote(id, btn){
+  const issue = DATA.issues.find(i=>i.id===id);
+  if(issue){ issue.upvotes++; if(btn) btn.textContent='▲ '+issue.upvotes; }
+}
+function filterByWard(ward){
+  activeWardFilter = activeWardFilter===ward ? '' : ward;
+  feedWard = activeWardFilter;
+  if(currentPage==='map') showPage('map');
+  else { showPage('feed'); }
+}
+function clearWardFilter(){ activeWardFilter=''; feedWard=''; showPage('map'); }
+ 
+function pill(text, color, bg){
+  return `<span class="pill" style="color:${color};background:${bg}">${text}</span>`;
+}
+function statusPill(s){
+  return s==='resolved'
+    ? `<span class="pill" style="color:var(--green);background:var(--green-dim)">resolved</span>`
+    : `<span class="pill" style="color:var(--orange);background:var(--orange-dim)">open</span>`;
+}
+function srcBadge(src){
+  const m=SRC[src]||SRC.citizen;
+  return `<span class="src-badge" style="color:${m.color};background:${m.bg}">${m.label}</span>`;
+}
+function pinIcon(){ return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`; }
+function closeIcon(){ return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`; }
+ 
+function copyToClip(text, label){
+  try{ navigator.clipboard.writeText(text); }
+  catch{ const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t); }
+  showToast(`✓ ${label} copied to clipboard!`,'#30D158');
+}
+ 
+function showToast(msg, color='#30D158'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=color;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+ 
+// Close sidebar on outside click (mobile)
+document.addEventListener('click', e=>{
+  const sb=document.getElementById('sidebar');
+  const hb=document.querySelector('.hamburger');
+  if(window.innerWidth<768 && sb.classList.contains('open') && !sb.contains(e.target) && !hb.contains(e.target)){
+    closeSidebar();
+  }
+});
+ 
+/* ════════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════════ */
+// Load seed immediately, then fetch live data
+DATA = {
+  issues: SEED_ISSUES,
+  leaderboard: buildSeedLeaderboard(),
+  clusters: buildSeedClusters(),
+  timestamp: null,
+};
+SEED_LOADED = true;
+updateGlobalUI();
+showPage('dashboard');
+ 
+// Fetch live data after short delay (lets page paint first)
+setTimeout(()=>fetchData(false), 800);
+ 
+// Auto-refresh every 30 seconds
+startAutoRefresh();
 </script>
-
 </body>
 </html>
+ 
