@@ -54,10 +54,66 @@ HEADERS = {
 }
 
 WARDS = [
-    "Indiranagar", "Koramangala", "Jayanagar", "Rajajinagar", "Malleswaram",
-    "Hebbal", "Whitefield", "Electronic City", "HSR Layout", "BTM Layout",
-    "Banashankari", "Vijayanagar", "Yelahanka", "JP Nagar", "Marathahalli",
-    "Shivajinagar", "Basavanagudi", "Frazer Town", "Sadashivanagar", "Bellandur",
+    # Yelahanka Zone
+    "Kempegowda","Chowdeshwari","Attur Layout","Yelahanka Satellite Town",
+    "Kogilu","Thanisandra","Jakkuru","Gundanjaneya Temple Ward",
+    "Amrutahalli","Kodigehalli","Vidyaranyapura","Dodda Bommasandra",
+    # Dasarahalli Zone
+    "Ramachandrapura","Shettihalli","Chikkasandra","Bagalakunte",
+    "Mallasandra","T Dasarahalli","Jalahalli","Herohalli",
+    # Rajarajeshwari Nagar Zone
+    "Chamundi Nagar","Ganganagar","Aramane Nagara","Chokkasandra",
+    "Dodda Bidarakallu","Peenya Industrial Area","Rajarajeshwari Nagar",
+    "Hosakerehalli","Gollarapalya Hosahalli","Kottegepalya",
+    "Hegganahalli","Sunkadakatte",
+    # Bangalore West Zone
+    "Lakshmi Devi Nagar","Nandini Layout","Marappana Palya","Malleswaram",
+    "Rajagopal Nagar","Maruthi Nagar","Laggere","Kushal Nagar",
+    "Kaval Bairasandra","Sriramamandir","Dayananda Nagar","Shankar Matt",
+    "Manjunath Naga","Shanthala Nagar","Sampangiram Nagar","Gandhinagar",
+    "Okalipuram","Rajaji Nagar","Basaveswara Nagar","Vrisabhavathi Nagar",
+    "Kaveripura","Agrahara Dasarahalli","Dr. Raj Kumar Ward","Chickpete",
+    "Chalavadipalya","Binnipete","Bapuji Nagar","Padarayanapura",
+    "Nagarabhavi","Jnana Bharathi Ward","Kengeri",
+    "Nagadevanahalli","Ullalu","Konena Agarahara","Jeevan Bheema Nagar",
+    "Jogupalya","Subramanya Nagar","Nagapura","Rajamahal Guttahalli",
+    # Bangalore East Zone
+    "Brundavana Nagar","J P Park","Yeshwanthpura","Mattikere",
+    "Radhakrishna Temple Ward","Horamavu","Kalkere","Banasavadi",
+    "Kammanahalli","Kacharkanahalli","HBR Layout","Kadugondanahalli",
+    "Chellakere","Vijayanagar","Hosahalli","Jayachamarajendra Nagar",
+    "Devara Jeevanahalli","Muneshwara Nagar","Lingarajapura",
+    "Sagayapuram","Pulikeshinagar","Ramaswamy Palya","Halsoor",
+    "Hoysala Nagar","New Tippasandara","Garudachar Playa",
+    "Hudi","Kadugodi","Hagadur","Whitefield","Doddanekkundi",
+    "HAL Airport","Kalyana Nagar","Maruthi Mandir Ward",
+    "Frazer Town","Sanjaya Nagar",
+    # Mahadevapura Zone
+    "Hebbala","Vishwanath Nagenahalli","Govindapura","Hennur",
+    "Benniganahalli","Ramamurthy Nagar","K R Puram","Basavanapura",
+    "Devasandra","C V Raman Nagar","Sarvagna Nagar","Maruthi Seva Nagar",
+    "Marathahalli","Varthur","Bellandur","Domlur",
+    "A Narayanapura","Vijnanapura","Ibluru",
+    # Bommanahalli Zone
+    "Bommanahalli","Bilekhalli","Hongasandra","Singsandra",
+    "Begur","Devarachikkanahalli","Arakere","Kalena Agrahar",
+    "Gottigere","Anjanapura","Hemmigepura","Kudlu",
+    "Puttenahalli","Chunchaghatta","Jaraganahalli","Vasanthapura",
+    "Kumaraswamy Layout","Akshayanagar","Hulimavu","Haralur",
+    "Electronic City Phase 1","Electronic City Phase 2",
+    "Nyanappana Halli","Garvebhavipalya",
+    # Bangalore South Zone
+    "Jayanagar","BTM Layout","Madivala","Jakkasandra",
+    "HSR Layout","Agara","Koramangala","Lakkasandra","Siddapura",
+    "Vishveshwara Puram","Sunkenahalli","Azad Nagar",
+    "Deepanjali Nagar","Nayandahalli","Girinagar","Srinagar",
+    "Hanumanth Nagar","Katriguppe","Vidyapeeta Ward","Basavanagudi",
+    "Byrasandra","Gurappanapalya","Suddagunte Palya","Ragigudda","Sarakki",
+    "Karisandra","Padmanabha Nagar","Ittamadu","Uttarahalli",
+    "Subramanyapura","Banashankari Temple Ward","Yelchenahalli",
+    "JP Nagar","Bannerghatta Road","Attiguppe","Hampi Nagar",
+    "K R Market","Hombegowda Nagara","Shivajinagar","Sadashivanagar",
+    "Indiranagar","Rajajinagar","Hebbal","Yelahanka",
 ]
 
 ISSUE_MAP = {
