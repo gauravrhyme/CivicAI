@@ -24,17 +24,17 @@ button{font-family:inherit;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
-
+ 
 /* ═══════════════ ANIMATIONS ═══════════════ */
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
 @keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 @keyframes countIn{from{opacity:0;transform:scale(.82);}to{opacity:1;transform:scale(1);}}
-
+ 
 /* ═══════════════ LAYOUT ═══════════════ */
 #shell{display:flex;height:100vh;overflow:hidden;}
-
+ 
 /* SIDEBAR */
 #sb{
   width:var(--sb);flex-shrink:0;background:var(--sur);border-right:1px solid var(--b);
@@ -59,10 +59,10 @@ button{font-family:inherit;}
 .sb-foot{padding:14px 18px;border-top:1px solid var(--b);margin-top:auto;font-size:10.5px;color:var(--muted);}
 #sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;}
 #sb-ov.show{display:block;}
-
+ 
 /* MAIN */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-
+ 
 /* TOPBAR */
 #topbar{
   height:var(--tb);background:rgba(12,15,26,.95);backdrop-filter:blur(18px);
@@ -80,10 +80,10 @@ button{font-family:inherit;}
 .fetch-btn:disabled{opacity:.4;transform:none;cursor:not-allowed;}
 .fetch-btn .spin{animation:spin 1s linear infinite;display:inline-flex;}
 .hbtn{background:none;border:none;color:var(--sub);display:flex;padding:4px;border-radius:6px;cursor:pointer;}
-
+ 
 /* REFRESH BAR */
 #rbar{height:2px;background:linear-gradient(90deg,var(--teal),var(--blue));transform-origin:left;flex-shrink:0;}
-
+ 
 /* TICKER */
 #ticker{
   background:rgba(255,51,85,.05);border-bottom:1px solid rgba(255,51,85,.1);
@@ -94,11 +94,11 @@ button{font-family:inherit;}
 .tick-track{display:flex;gap:32px;white-space:nowrap;animation:ticker 30s linear infinite;}
 .tick-track:hover{animation-play-state:paused;}
 .tick-item{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-
+ 
 /* SCROLL AREA */
 #scroll{flex:1;overflow-y:auto;overflow-x:hidden;}
 #content{padding:20px 24px 90px;}
-
+ 
 /* SECTION HEADER */
 .sh{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;}
 .sh-title{font-size:21px;font-weight:800;color:var(--text);}
@@ -106,7 +106,7 @@ button{font-family:inherit;}
 .sh-act{font-size:11px;font-weight:600;color:var(--teal);cursor:pointer;}
 .sh-act:hover{opacity:.75;}
 .lts{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;color:var(--teal);background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.14);border-radius:6px;padding:3px 9px;font-family:'JetBrains Mono',monospace;}
-
+ 
 /* STAT GRID */
 .stat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;}
 .sc{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;animation:countIn .5s ease backwards;}
@@ -116,7 +116,7 @@ button{font-family:inherit;}
 .sc-label{font-size:11.5px;font-weight:600;color:var(--sub);margin-top:5px;}
 .sc-hint{font-size:10px;color:var(--muted);margin-top:2px;}
 .sc-trend{position:absolute;top:12px;right:14px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;}
-
+ 
 /* ALERT BARS */
 .alert{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;margin-bottom:10px;border:1px solid;animation:fadeUp .3s ease;}
 .alert.crit{background:rgba(255,51,85,.07);border-color:rgba(255,51,85,.2);}
@@ -124,18 +124,18 @@ button{font-family:inherit;}
 .alert-ico{font-size:16px;flex-shrink:0;}
 .alert-txt{flex:1;font-size:12px;color:var(--sub);}
 .alert-cnt{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;flex-shrink:0;}
-
+ 
 /* GRID LAYOUTS */
 .g2{display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
 .g2e{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-
+ 
 /* PANEL */
 .pan{background:var(--card);border:1px solid var(--b);border-radius:13px;padding:18px 20px;overflow:hidden;}
 .pt{font-size:13.5px;font-weight:700;color:var(--text);}
 .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .pm{font-size:11px;color:var(--muted);}
-
+ 
 /* TIMELINE */
 .tl{position:relative;padding-left:18px;}
 .tl::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:linear-gradient(to bottom,var(--teal),rgba(0,200,150,.1));border-radius:1px;}
@@ -148,7 +148,7 @@ button{font-family:inherit;}
 .tl-desc{font-size:12.5px;color:var(--sub);margin-top:5px;line-height:1.42;}
 .tl-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
 .tl-ts{font-size:10.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-
+ 
 /* LEADERBOARD */
 .lbi{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--b);}
 .lbi:last-child{border-bottom:none;}
@@ -157,7 +157,7 @@ button{font-family:inherit;}
 .lb-track{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
 .lb-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1);}
 .lb-cnt{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;min-width:26px;text-align:right;flex-shrink:0;}
-
+ 
 /* HEATMAP */
 .heat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
 .heat-cell{border-radius:7px;padding:8px 5px;text-align:center;cursor:pointer;transition:transform .15s;border:1px solid transparent;}
@@ -168,7 +168,7 @@ button{font-family:inherit;}
 .heat-leg{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;}
 .hl-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);}
 .hl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-
+ 
 /* HALL PODIUM */
 .pod-wrap{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin-bottom:20px;}
 .pod-col{flex:1;text-align:center;max-width:140px;}
@@ -180,17 +180,17 @@ button{font-family:inherit;}
 .orow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--b);}
 .orow:last-child{border-bottom:none;}
 .oav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
-
+ 
 /* PROGRESS */
 .prog{height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;margin:3px 0;}
 .prog-f{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1);}
-
+ 
 /* CLUSTER */
 .clus{background:var(--card);border:1px solid var(--b);border-left:3px solid var(--purple);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
 .clus-lbl{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px;}
 .clus-desc{font-size:12px;color:var(--sub);line-height:1.4;}
 .clus-cnt{font-size:11px;color:var(--muted);margin-top:4px;}
-
+ 
 /* FILTER ROW */
 .frow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
 .fc{padding:5px 11px;border-radius:20px;border:1px solid var(--b);background:rgba(255,255,255,.025);color:var(--muted);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;}
@@ -198,12 +198,12 @@ button{font-family:inherit;}
 .fc:hover:not(.on){border-color:var(--bh);color:var(--sub);}
 .fsel{padding:5px 10px;border-radius:20px;border:1px solid var(--b);background:rgba(255,255,255,.025);color:var(--muted);font-size:11.5px;font-weight:600;cursor:pointer;}
 .fsel option{background:#161B2A;}
-
+ 
 /* TABS */
 .tabrow{display:flex;gap:2px;background:rgba(255,255,255,.04);border-radius:9px;padding:3px;margin-bottom:14px;}
 .tbtn{flex:1;padding:6px 10px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
 .tbtn.on{background:var(--ch);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.25);}
-
+ 
 /* STICKY ACTION BAR */
 #abar{
   position:fixed;bottom:0;right:0;left:var(--sb);
@@ -219,11 +219,11 @@ button{font-family:inherit;}
 .ab-sec:hover{background:rgba(255,255,255,.06);color:var(--text);}
 .ab-dng{background:rgba(255,51,85,.12);color:var(--red);border:1px solid rgba(255,51,85,.2);}
 .ab-dng:hover{background:rgba(255,51,85,.18);}
-
+ 
 /* PILLS */
 .pill{display:inline-flex;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:2px 6px;border-radius:4px;}
 .spill{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-flex;}
-
+ 
 /* MODAL */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);animation:fadeUp .2s ease;}
 .modal{background:var(--sur);border:1px solid var(--bh);border-radius:18px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:fadeUp .25s ease;}
@@ -232,7 +232,7 @@ button{font-family:inherit;}
 .mbody{padding:18px 22px 22px;}
 .closebtn{background:none;border:none;color:var(--muted);display:flex;padding:4px;border-radius:5px;cursor:pointer;transition:color .15s;}
 .closebtn:hover{color:var(--text);}
-
+ 
 /* FORM */
 .fl{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block;}
 .fi{width:100%;padding:9px 13px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid var(--bh);color:var(--text);font-size:13.5px;transition:border-color .15s;margin-bottom:11px;}
@@ -250,16 +250,16 @@ select.fi option{background:#161B2A;}
 .pprev{width:100%;max-height:170px;object-fit:cover;border-radius:8px;display:block;}
 .prmbtn{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.7);border:none;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
 .copybtn{width:100%;padding:8px;border-radius:8px;border:none;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .15s;}
-
+ 
 /* TOAST */
 #toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--green);color:#fff;padding:9px 20px;border-radius:10px;font-size:12.5px;font-weight:700;z-index:3000;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap;box-shadow:0 6px 26px rgba(0,0,0,.35);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
+ 
 /* MOBILE NAV */
 #mnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(17,21,32,.97);border-top:1px solid var(--b);backdrop-filter:blur(18px);padding:6px 0 max(6px,env(safe-area-inset-bottom));}
 .mn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 2px;cursor:pointer;transition:color .15s;}
 .mn-btn.on{color:var(--teal);}
-
+ 
 /* ═══════════════ RESPONSIVE ═══════════════ */
 @media(max-width:1200px){
   .stat-grid{grid-template-columns:repeat(3,1fr);}
@@ -294,7 +294,7 @@ select.fi option{background:#161B2A;}
 </head>
 <body>
 <div id="toast"></div>
-
+ 
 <div id="shell">
 <!-- ════════════ SIDEBAR ════════════ -->
 <nav id="sb">
@@ -328,7 +328,7 @@ select.fi option{background:#161B2A;}
   <div class="sb-foot">CivicAI v4.0 · Bengaluru Pilot<br><span style="color:rgba(255,255,255,.1)">civicai.in · Open Source</span></div>
 </nav>
 <div id="sb-ov" onclick="closeSB()"></div>
-
+ 
 <!-- ════════════ MAIN ════════════ -->
 <div id="main">
   <div id="topbar">
@@ -372,7 +372,7 @@ select.fi option{background:#161B2A;}
   </div>
 </div><!-- /#main -->
 </div><!-- /#shell -->
-
+ 
 <!-- MOBILE NAV -->
 <nav id="mnav">
   <button class="mn-btn on" id="mn-dashboard" onclick="nav('dashboard')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Home</button>
@@ -381,7 +381,7 @@ select.fi option{background:#161B2A;}
   <button class="mn-btn" id="mn-hall" onclick="nav('hall')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M5 3H3v6a4 4 0 004 4h10a4 4 0 004-4V3h-2"/></svg>Hall</button>
   <button class="mn-btn" onclick="openRpt()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Report</button>
 </nav>
-
+ 
 <script>
 /* ════════════════════════════════════════
    CONFIG
@@ -389,9 +389,136 @@ select.fi option{background:#161B2A;}
 var FLASK = location.protocol === 'file:' ? 'http://localhost:10000' : '';
 var REFRESH_SEC = 30;
 var PAGE_TITLES = {dashboard:'Dashboard',feed:'Live Issue Feed',map:'Ward Heat Map',hall:'Hall of Fame / Shame',clusters:'Issue Clusters'};
-
-var WARDS = ["Indiranagar","Koramangala","Jayanagar","Rajajinagar","Malleswaram","Hebbal","Whitefield","Electronic City","HSR Layout","BTM Layout","Banashankari","Vijayanagar","Yelahanka","JP Nagar","Marathahalli","Shivajinagar","Basavanagudi","Frazer Town","Sadashivanagar","Bellandur"];
-
+ 
+/* ── Complete BBMP 198-ward list (official, zone-organised) ── */
+var WARDS_BY_ZONE = {
+  "Yelahanka Zone": [
+    "Kempegowda","Chowdeshwari","Attur Layout","Yelahanka Satellite Town",
+    "Kogilu","Thanisandra","Jakkuru","Gundanjaneya Temple Ward",
+    "Amrutahalli","Kodigehalli","Vidyaranyapura","Dodda Bommasandra"
+  ],
+  "Dasarahalli Zone": [
+    "Ramachandrapura","Shettihalli","Chikkasandra","Bagalakunte",
+    "Mallasandra","T Dasarahalli","Jalahalli","Herohalli"
+  ],
+  "Rajarajeshwari Nagar Zone": [
+    "Chamundi Nagar","Ganganagar","Aramane Nagara","Chokkasandra",
+    "Dodda Bidarakallu","Peenya Industrial Area","Rajarajeshwari Nagar",
+    "Hosakerehalli","Gollarapalya Hosahalli","Kottegepalya",
+    "Hegganahalli","Sunkadakatte"
+  ],
+  "Bangalore West Zone": [
+    "Lakshmi Devi Nagar","Nandini Layout","Marappana Palya","Malleswaram",
+    "Rajagopal Nagar","Maruthi Nagar","Laggere","Kushal Nagar",
+    "Kaval Bairasandra","Sriramamandir","Dayananda Nagar","Shankar Matt",
+    "Manjunath Naga","Shanthala Nagar","Sampangiram Nagar","Gandhinagar",
+    "Okalipuram","Rajaji Nagar","Basaveswara Nagar","Vrisabhavathi Nagar",
+    "Kaveripura","Agrahara Dasarahalli","Dr. Raj Kumar Ward","Chickpete",
+    "Chalavadipalya","Binnipete","Bapuji Nagar","Padarayanapura",
+    "Nagarabhavi","Jnana Bharathi Ward","Kengeri",
+    "Nagadevanahalli","Ullalu","Konena Agarahara","Jeevan Bheema Nagar",
+    "Jogupalya","Subramanya Nagar","Nagapura","Rajamahal Guttahalli"
+  ],
+  "Bangalore East Zone": [
+    "Brundavana Nagar","J P Park","Yeshwanthpura","Mattikere",
+    "Radhakrishna Temple Ward","Horamavu","Kalkere","Banasavadi",
+    "Kammanahalli","Kacharkanahalli","HBR Layout","Kadugondanahalli",
+    "Chellakere","Vijayanagar","Hosahalli","Jayachamarajendra Nagar",
+    "Devara Jeevanahalli","Muneshwara Nagar","Lingarajapura",
+    "Sagayapuram","Pulikeshinagar","Ramaswamy Palya","Halsoor",
+    "Hoysala Nagar","New Tippasandara","Vijnana Nagar","Garudachar Playa",
+    "Hudi","Kadugodi","Hagadur","Whitefield","Doddanekkundi",
+    "HAL Airport","Kalyana Nagar","Maruthi Mandir Ward",
+    "Shanthi Nagar (Ward 131)","Nilasandra","Vannarpet","Ejipura",
+    "Frazer Town","Sanjaya Nagar","Malleswaram (Ward 49)"
+  ],
+  "Mahadevapura Zone": [
+    "Hebbala","Vishwanath Nagenahalli","Govindapura","Hennur",
+    "Benniganahalli","Ramamurthy Nagar","K R Puram","Basavanapura",
+    "Devasandra","C V Raman Nagar","Sarvagna Nagar","Maruthi Seva Nagar",
+    "Gayithri Nagar","Dattatreya Temple","Seshadripuram","Vasanth Nagar",
+    "Bharathi Nagar","Hoysala Nagar (Mahadevapura)","Marathahalli",
+    "Varthur","Basavanagudi (Ward 156)","Yediyur","Bellandur",
+    "Ibluru","Domlur","A Narayanapura","Vijnanapura"
+  ],
+  "Bommanahalli Zone": [
+    "Bommanahalli","Bilekhalli","Hongasandra","Singsandra",
+    "Begur","Devarachikkanahalli","Arakere","Kalena Agrahar",
+    "Gottigere","Anjanapura","Hemmigepura","Kudlu",
+    "Puttenahalli","Chunchaghatta","Jaraganahalli","Vasanthapura",
+    "Kumaraswamy Layout","Akshayanagar","Hulimavu","Haralur",
+    "Electronic City Phase 1","Electronic City Phase 2",
+    "Nyanappana Halli","Garvebhavipalya"
+  ],
+  "Bangalore South Zone": [
+    "Jayanagar","Jayanagar East","BTM Layout","Madivala",
+    "Jakkasandra","HSR Layout","Agara","Koramangala",
+    "Lakkasandra","Siddapura","Vishveshwara Puram","Sunkenahalli",
+    "Azad Nagar","Gali Anjenaya Temple Ward","Deepanjali Nagar",
+    "Nayandahalli","Girinagar","Srinagar","Hanumanth Nagar",
+    "Katriguppe","Vidyapeeta Ward","Basavanagudi","Byrasandra",
+    "Gurappanapalya","Suddagunte Palya","Ragigudda","Sarakki",
+    "Karisandra","Dharmagiri Shri Manjunatha Temple Ward",
+    "Padmanabha Nagar","Ittamadu","Uttarahalli","Subramanyapura",
+    "Banashankari Temple Ward","Yelchenahalli","JP Nagar",
+    "Bannerghatta Road","Hulimangala","BTM 2nd Stage",
+    "Attiguppe","Hampi Nagar","K R Market","Hombegowda Nagara",
+    "Dharmaraya Swamy Temple Ward","Rajarajeshwari Nagar (South)",
+    "Gurappanapalya","Jogupalya (South)","Shivajinagar",
+    "Sadashivanagar","Indiranagar","Rajajinagar","Hebbal",
+    "Vijayanagar (Assembly)","Yeshwanthpura (South)"
+  ]
+};
+ 
+/* Flat de-duplicated ward list for dropdowns */
+var WARDS = (function(){
+  var seen = {}, out = [];
+  /* Priority wards shown first */
+  var priority = [
+    "Indiranagar","Koramangala","Jayanagar","BTM Layout","HSR Layout",
+    "Whitefield","Electronic City Phase 1","Electronic City Phase 2",
+    "Bellandur","Marathahalli","Bommanahalli","Begur","Akshayanagar",
+    "Gottigere","Anjanapura","Kudlu","Arakere","Kalena Agrahar",
+    "Devarachikkanahalli","Hulimavu","Hongasandra","Singsandra",
+    "Bilekhalli","Jakkasandra","Madivala","Agara","HSR Layout",
+    "Banashankari","Basavanagudi","Jayanagar","Padmanabha Nagar",
+    "JP Nagar","Girinagar","Uttarahalli","Subramanyapura","Yelchenahalli",
+    "Puttenahalli","Chunchaghatta","Vasanthapura","Kumaraswamy Layout",
+    "Sarakki","Ragigudda","Byrasandra","Katriguppe","Vidyapeeta Ward",
+    "Hanumanth Nagar","Srinagar","Nilasandra","Ejipura","Lakkasandra",
+    "Siddapura","Vishveshwara Puram","Sunkenahalli","Attiguppe",
+    "Hampi Nagar","K R Market","Hombegowda Nagara",
+    "Malleswaram","Hebbal","Yelahanka","Rajajinagar","Shivajinagar",
+    "Sadashivanagar","Frazer Town","Vijayanagar","Rajajinagar",
+    "Gandhinagar","Chickpete","Binnipete","Shanthi Nagar","Domlur",
+    "C V Raman Nagar","K R Puram","Varthur","Whitefield","Kadugodi",
+    "Horamavu","HBR Layout","Kammanahalli","Thanisandra","Amrutahalli",
+    "Kodigehalli","Vidyaranyapura","Jakkuru","Kogilu","Kempegowda",
+    "Yelahanka Satellite Town","Chowdeshwari","Attur Layout",
+    "Rajarajeshwari Nagar","Hosakerehalli","Nayandahalli","Nagarabhavi",
+    "Kengeri","Nagadevanahalli","Ullalu","Jnana Bharathi Ward",
+    "Peenya Industrial Area","Laggere","Maruthi Nagar","Rajagopal Nagar",
+    "T Dasarahalli","Jalahalli","Shettihalli","Chikkasandra","Bagalakunte",
+    "Mallasandra","Ramachandrapura","Dodda Bommasandra","Chamundi Nagar",
+    "Ganganagar","Herohalli","Hegganahalli","Sunkadakatte",
+    "Ramamurthy Nagar","Devasandra","Basavanapura","Govindapura",
+    "Hennur","Benniganahalli","Hebbala","Vishwanath Nagenahalli",
+    "Maruthi Seva Nagar","Sarvagna Nagar","Hudi","Kadugodi","Hagadur",
+    "Doddanekkundi","Kalyana Nagar","Lakkasandra","Pulikeshinagar",
+    "Vasanth Nagar","Bharathi Nagar","Halsoor","Seshadripuram",
+    "Nandini Layout","Marappana Palya","Lakshmi Devi Nagar",
+    "Rajaji Nagar","Basaveswara Nagar","Vrisabhavathi Nagar",
+    "Shanthala Nagar","Sampangiram Nagar","Bapuji Nagar","Padarayanapura",
+    "Ibluru","Garvebhavipalya","Haralur","Nyanappana Halli",
+    "Bannerghatta Road","Hulimangala","Akshayanagar"
+  ];
+  priority.forEach(function(w){ if(!seen[w]){ seen[w]=1; out.push(w); } });
+  Object.values(WARDS_BY_ZONE).forEach(function(arr){
+    arr.forEach(function(w){ if(!seen[w]){ seen[w]=1; out.push(w); } });
+  });
+  return out;
+})();
+ 
 var OFFICIALS = {
   "Indiranagar":    {mla:"Sowmya Reddy",    bbmp:"R. Srinivas",  dept:"Public Works",   av:"RS",res:12,pend:2, avg:4 },
   "Koramangala":    {mla:"Rizwan Arshad",    bbmp:"K. Venkatesh", dept:"Infrastructure", av:"KV",res:8, pend:5, avg:11},
@@ -404,7 +531,7 @@ var OFFICIALS = {
   "HSR Layout":     {mla:"Saritha Ramaiah",  bbmp:"C. Prakash",   dept:"Roads",          av:"CP",res:9, pend:2, avg:5 },
   "BTM Layout":     {mla:"Ramalinga Reddy",  bbmp:"D. Kumar",     dept:"Infrastructure", av:"DK",res:0, pend:13,avg:45},
 };
-
+ 
 var SRC_META = {
   twitter:{bg:'rgba(29,161,242,0.12)',color:'#1DA1F2',label:'Twitter/X'},
   reddit: {bg:'rgba(255,69,0,0.12)',  color:'#FF4500',label:'Reddit'},
@@ -416,14 +543,14 @@ var SRC_META = {
   'OpenCity CSV':{bg:'rgba(155,109,255,0.12)',color:'#9B6DFF',label:'OpenCity'},
   'OpenCity KML':{bg:'rgba(0,200,150,0.12)',color:'#00C896',label:'OpenCity'},
 };
-
+ 
 var ISSUE_TYPES = ["Pothole","Garbage","Broken Streetlight","Open Drain","Illegal Dumping","Damaged Footpath","Water Logging","Encroachment"];
-
+ 
 var SEV_COL = {critical:'#FF3355',high:'#FF8C00',medium:'#FFD60A',low:'#30D158'};
 var SEV_BG  = {critical:'rgba(255,51,85,0.12)',high:'rgba(255,140,0,0.12)',medium:'rgba(255,214,10,0.12)',low:'rgba(48,209,88,0.12)'};
 function sc(s){ return SEV_COL[s]||'#30D158'; }
 function sbg(s){ return SEV_BG[s]||'rgba(48,209,88,0.12)'; }
-
+ 
 /* ════════════════════════════════════════
    STATE
 ════════════════════════════════════════ */
@@ -440,7 +567,7 @@ var cdTimer = null;
 var rptStep = 1;
 var rptForm = {issue_type:'',description:'',location_name:'',ward:'',image_url:null};
 var aiRes = null;
-
+ 
 /* ════════════════════════════════════════
    SEED DATA (shown immediately while backend loads)
 ════════════════════════════════════════ */
@@ -452,7 +579,7 @@ function fmtd(iso){
   var d=new Date(iso);
   return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
 }
-
+ 
 var SEED = [
   {id:gid(),issue_type:"Pothole",          description:"Large pothole on 12th Main causing near-miss accidents daily — 3 bikes fell this week",  location_name:"Indiranagar, 12th Main",    ward:"Indiranagar",    severity:"critical",status:"open",    created_at:dAgo(14),upvotes:43,source:"seed",image_url:null,latitude:12.9784,longitude:77.6408},
   {id:gid(),issue_type:"Garbage",          description:"Overflowing garbage bins — 5 days uncollected near market, stench severe for residents",  location_name:"Koramangala, 5th Block",    ward:"Koramangala",    severity:"high",   status:"open",    created_at:dAgo(8), upvotes:27,source:"seed",image_url:null,latitude:12.9352,longitude:77.6245},
@@ -465,7 +592,7 @@ var SEED = [
   {id:gid(),issue_type:"Illegal Dumping",  description:"Construction debris dumped on public footpath — blocking pedestrians and wheelchair users", location_name:"Hebbal, Ring Road",         ward:"Hebbal",         severity:"medium", status:"open",    created_at:dAgo(31),upvotes:9, source:"seed",image_url:null,latitude:13.0400,longitude:77.5900},
   {id:gid(),issue_type:"Damaged Footpath", description:"Broken tiles creating accessibility hazard near mall — elderly resident fell last week",     location_name:"BTM Layout, 2nd Stage",     ward:"BTM Layout",     severity:"low",    status:"resolved",created_at:dAgo(30),upvotes:7, source:"seed",image_url:null,latitude:12.9100,longitude:77.6050},
 ];
-
+ 
 function seedLB(){
   var wc={};
   SEED.forEach(function(i){ wc[i.ward]=(wc[i.ward]||0)+1; });
@@ -482,7 +609,7 @@ function lbFromIssues(issues){
   issues.forEach(function(i){ wc[i.ward]=(wc[i.ward]||0)+1; });
   return Object.entries(wc).map(function(e){ return {ward:e[0],count:e[1]}; }).sort(function(a,b){ return b.count-a.count; });
 }
-
+ 
 /* ════════════════════════════════════════
    FETCH — robust, never crashes frontend
 ════════════════════════════════════════ */
@@ -497,7 +624,7 @@ function setFetchUI(loading){
     : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>';
   lbl.textContent=loading?'Fetching…':'Fetch Live';
 }
-
+ 
 function normaliseIssue(r){
   /* Map backend fields → frontend model safely */
   var sev = r.severity && ['critical','high','medium','low'].indexOf(r.severity)>-1 ? r.severity : 'medium';
@@ -522,19 +649,19 @@ function normaliseIssue(r){
     image_url:    r.image_url || null,
   };
 }
-
+ 
 function inferWardFromText(text){
   var t=text.toLowerCase();
   for(var i=0;i<WARDS.length;i++){ if(t.indexOf(WARDS[i].toLowerCase())>-1) return WARDS[i]; }
   return WARDS[Math.floor(Math.random()*WARDS.length)];
 }
-
+ 
 function fetchData(manual){
   if(fetching) return;
   fetching=true;
   setFetchUI(true);
   if(manual) toast('🔍 Fetching live data from Reddit, News, OpenCity…','#3B9EFF');
-
+ 
   var url = FLASK+'/scrape?sources=csv,kml,reddit,news&limit=100';
   fetch(url)
     .then(function(res){
@@ -571,7 +698,7 @@ function fetchData(manual){
       resetCD();
     });
 }
-
+ 
 /* ════════════════════════════════════════
    AUTO-REFRESH COUNTDOWN
 ════════════════════════════════════════ */
@@ -597,21 +724,21 @@ function animRBar(pct){
   var b=document.getElementById('rbar');
   if(b) b.style.transform='scaleX('+pct+')';
 }
-
+ 
 /* ════════════════════════════════════════
    GLOBAL UI SYNC
 ════════════════════════════════════════ */
 function e(id){ return document.getElementById(id); }
-
+ 
 function syncUI(){
   var issues=DATA.issues;
   var open=issues.filter(function(i){ return i.status==='open'; });
   var crit=issues.filter(function(i){ return i.severity==='critical'&&i.status==='open'; });
   var over=open.filter(function(i){ return dopen(i.created_at)>7; });
-
+ 
   if(e('tb-open')) e('tb-open').textContent=open.length;
   if(e('sb-fc'))   e('sb-fc').textContent=issues.length;
-
+ 
   var ts=DATA.timestamp?'Updated '+fmtd(DATA.timestamp):'civicai.in';
   var tdata=[
     ['tk1','tk5',open.length+' open issues'],
@@ -623,10 +750,10 @@ function syncUI(){
     if(e(t[0])) e(t[0]).textContent=t[2];
     if(e(t[1])) e(t[1]).textContent=t[2];
   });
-
+ 
   if(e('ab-stat')) e('ab-stat').innerHTML='<strong>'+open.length+'</strong> open · <strong>'+crit.length+'</strong> critical · <strong>'+over.length+'</strong> overdue';
 }
-
+ 
 /* ════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════ */
@@ -643,7 +770,7 @@ function nav(p){
 function toggleSB(){ e('sb').classList.toggle('open'); e('sb-ov').classList.toggle('show'); }
 function closeSB(){ e('sb').classList.remove('open'); e('sb-ov').classList.remove('show'); }
 function onSearch(v){ searchQ=v.toLowerCase(); if(page==='feed') render(); }
-
+ 
 function render(){
   var c=e('content'); if(!c) return;
   c.style.animation='none';
@@ -657,7 +784,7 @@ function render(){
     var sc=e('scroll'); if(sc) sc.scrollTop=0;
   });
 }
-
+ 
 /* ════════════════════════════════════════
    HTML HELPERS
 ════════════════════════════════════════ */
@@ -670,7 +797,7 @@ function xsvg(){ return '<svg width="17" height="17" viewBox="0 0 24 24" fill="n
 function prog(pct,col){ return '<div class="prog"><div class="prog-f" style="width:'+Math.min(pct,100)+'%;background:'+col+'"></div></div>'; }
 function esc(s){ return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function safeEsc(s){ return String(s||'').replace(/`/g,"'").replace(/\\/g,'\\\\'); }
-
+ 
 /* ════════════════════════════════════════
    PAGE: DASHBOARD
 ════════════════════════════════════════ */
@@ -681,36 +808,36 @@ function pDash(){
   var crit=issues.filter(function(i){ return i.severity==='critical'&&i.status==='open'; });
   var over=open.filter(function(i){ return dopen(i.created_at)>7; });
   var avg=open.length?Math.round(open.reduce(function(a,i){ return a+dopen(i.created_at); },0)/open.length):0;
-
+ 
   var bySev={critical:0,high:0,medium:0,low:0};
   issues.forEach(function(i){ if(i.status==='open'){ bySev[i.severity]=(bySev[i.severity]||0)+1; } });
-
+ 
   var byType={};
   issues.forEach(function(i){ byType[i.issue_type]=(byType[i.issue_type]||0)+1; });
   var topTypes=Object.entries(byType).sort(function(a,b){ return b[1]-a[1]; }).slice(0,6);
   var maxType=topTypes.length?topTypes[0][1]:1;
-
+ 
   var bySrc={};
   issues.forEach(function(i){ bySrc[i.source]=(bySrc[i.source]||0)+1; });
-
+ 
   var oldest=[].concat(open).sort(function(a,b){ return dopen(b.created_at)-dopen(a.created_at); }).slice(0,6);
   var lb=DATA.leaderboard.length?DATA.leaderboard:lbFromIssues(issues);
   var maxLb=lb.length?lb[0].count:1;
   var topUV=[].concat(issues).sort(function(a,b){ return b.upvotes-a.upvotes; }).slice(0,6);
   var ts=DATA.timestamp;
   var h='';
-
+ 
   /* header */
   h+='<div class="sh"><div><div class="sh-title">Civic Accountability Dashboard</div>';
   h+='<div class="sh-sub">Real-time data · Bengaluru · '+new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>';
   h+='<div style="display:flex;align-items:center;gap:8px;">';
   if(ts) h+='<div class="lts">✓ Live · '+fmtd(ts)+'</div>';
   h+='<div style="font-size:11px;color:var(--muted)">↻ '+REFRESH_SEC+'s</div></div></div>';
-
+ 
   /* alert bars */
   if(bySev.critical>0) h+='<div class="alert crit"><span class="alert-ico">🚨</span><div class="alert-txt"><strong style="color:var(--red)">'+bySev.critical+' CRITICAL</strong> issues require immediate action across Bengaluru wards</div><div class="alert-cnt" style="color:var(--red)">'+bySev.critical+'</div></div>';
   if(bySev.high>2)     h+='<div class="alert high"><span class="alert-ico">⚠️</span><div class="alert-txt"><strong style="color:var(--orange)">'+bySev.high+' HIGH</strong> severity issues open — escalation recommended</div><div class="alert-cnt" style="color:var(--orange)">'+bySev.high+'</div></div>';
-
+ 
   /* stat grid */
   var stats=[
     {n:open.length,   l:'Open Issues',   hint:'Need attention',    acc:'var(--orange)',tr:'active'},
@@ -729,10 +856,10 @@ function pDash(){
     h+='<div class="sc-hint">'+s.hint+'</div></div>';
   });
   h+='</div>';
-
+ 
   /* 2-col */
   h+='<div class="g2">';
-
+ 
   /* LEFT: oldest unresolved timeline */
   h+='<div class="pan"><div class="ph"><div class="pt">🔥 Oldest Unresolved Issues</div><div class="sh-act" onclick="nav(\'feed\')">View all →</div></div><div class="tl">';
   oldest.forEach(function(issue,idx){
@@ -754,10 +881,10 @@ function pDash(){
   });
   if(!oldest.length) h+='<div style="text-align:center;padding:30px;color:var(--muted)">No open issues</div>';
   h+='</div></div>';
-
+ 
   /* RIGHT column */
   h+='<div style="display:flex;flex-direction:column;gap:13px;">';
-
+ 
   /* Ward leaderboard from backend */
   h+='<div class="pan"><div class="ph"><div class="pt">📊 Ward Issue Count</div><div class="sh-act" onclick="nav(\'map\')">Heat Map →</div></div>';
   var rankCols=['#FFD700','#C0C0C0','#CD7F32'];
@@ -773,7 +900,7 @@ function pDash(){
   });
   if(!lb.length) h+='<div style="text-align:center;padding:20px;color:var(--muted)">No data yet</div>';
   h+='</div>';
-
+ 
   /* Issue type breakdown */
   h+='<div class="pan"><div class="ph"><div class="pt">Issues by Type</div></div>';
   topTypes.forEach(function(t){
@@ -784,7 +911,7 @@ function pDash(){
     h+='</div>';
   });
   h+='</div>';
-
+ 
   /* Data sources */
   h+='<div class="pan"><div class="ph"><div class="pt">Data Sources</div></div>';
   Object.entries(bySrc).forEach(function(entry){
@@ -797,9 +924,9 @@ function pDash(){
     h+='</div>';
   });
   h+='</div>';
-
+ 
   h+='</div></div>';/* end right col + g2 */
-
+ 
   /* MOST UPVOTED */
   h+='<div class="pan" style="margin-bottom:14px"><div class="ph"><div class="pt">⬆ Community Pressure — Most Upvoted</div><div class="sh-act" onclick="nav(\'feed\')">See all →</div></div>';
   h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">';
@@ -814,10 +941,10 @@ function pDash(){
     h+='</div>';
   });
   h+='</div></div>';
-
+ 
   return h;
 }
-
+ 
 /* ════════════════════════════════════════
    PAGE: FEED
 ════════════════════════════════════════ */
@@ -834,22 +961,26 @@ function pFeed(){
   var liveCount=DATA.issues.filter(function(i){ return i.source!=='citizen'&&i.source!=='seed'; }).length;
   var ts=DATA.timestamp;
   var h='';
-
+ 
   h+='<div class="sh"><div><div class="sh-title">Live Issue Feed</div>';
   h+='<div class="sh-sub">'+filtered.length+' issues shown · '+liveCount+' from live scrape'+(ts?' · Updated '+fmtd(ts):'')+'</div></div>';
   if(ts) h+='<div class="lts">✓ '+fmtd(ts)+'</div>';
   h+='</div>';
-
+ 
   h+='<div class="frow">';
   ['all','open','resolved','critical','high'].forEach(function(f){
     h+='<div class="fc '+(feedFilter===f?'on':'')+'" onclick="feedFilter=\''+f+'\';render()">'+f.charAt(0).toUpperCase()+f.slice(1)+'</div>';
   });
-  h+='<select class="fsel" onchange="feedWard=this.value;render()"><option value="">All Wards</option>';
-  WARDS.forEach(function(w){ h+='<option value="'+w+'"'+(feedWard===w?' selected':'')+'>'+w+'</option>'; });
+  h+='<select class="fsel" onchange="feedWard=this.value;render()"><option value="">All Wards (198 BBMP)</option>';
+  Object.entries(WARDS_BY_ZONE).forEach(function(zEntry){
+    h+='<optgroup label="── '+zEntry[0]+' ──">';
+    zEntry[1].forEach(function(w){ h+='<option value="'+w+'"'+(feedWard===w?' selected':'')+'>'+w+'</option>'; });
+    h+='</optgroup>';
+  });
   h+='</select>';
   h+='<div style="margin-left:auto;font-size:11px;color:var(--muted)">'+filtered.length+' / '+DATA.issues.length+'</div>';
   h+='</div>';
-
+ 
   h+='<div class="tl">';
   if(!filtered.length) h+='<div style="text-align:center;padding:40px;color:var(--muted)">No issues match the current filter</div>';
   filtered.forEach(function(issue,idx){
@@ -873,7 +1004,7 @@ function pFeed(){
   h+='</div>';
   return h;
 }
-
+ 
 /* ════════════════════════════════════════
    PAGE: MAP
 ════════════════════════════════════════ */
@@ -885,19 +1016,21 @@ function pMap(){
   var geoIssues=DATA.issues.filter(function(i){ return i.latitude&&i.longitude; }).slice(0,12);
   var ts=DATA.timestamp;
   var h='';
-
+ 
   h+='<div class="sh"><div><div class="sh-title">Ward Heat Map</div>';
   h+='<div class="sh-sub">Issue density by ward · '+DATA.issues.length+' total datapoints'+(ts?' · '+fmtd(ts):'')+'</div></div>';
   if(ts) h+='<div class="lts">✓ Live · '+fmtd(ts)+'</div>';
   h+='</div>';
-
+ 
   h+='<div class="g2">';
-
+ 
   /* HEATMAP */
   h+='<div>';
   h+='<div class="pan" style="margin-bottom:13px"><div class="ph"><div class="pt">Ward Intensity Grid</div><div style="font-size:11px;color:var(--muted)">Click ward to filter feed</div></div>';
+  /* Show top-20 by issue count + any ward with >0 issues, max 40 cells */
+  var heatWards = WARDS.slice().sort(function(a,b){ return (wc[b]||0)-(wc[a]||0); }).slice(0,40);
   h+='<div class="heat-grid">';
-  WARDS.forEach(function(w){
+  heatWards.forEach(function(w){
     var c=wc[w]||0, pct=max?c/max:0;
     var bg=pct>.7?'#FF3355':pct>.45?'#FF8C00':pct>.2?'#FFD60A':'rgba(255,255,255,0.04)';
     var tc=pct>.2?'#fff':'var(--muted)';
@@ -918,7 +1051,7 @@ function pMap(){
     h+='<span>Filtered: <strong>'+wardSel+'</strong></span><button onclick="wardSel=\'\';feedWard=\'\';render()" style="background:none;border:none;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer">Clear ✕</button></div>';
   }
   h+='</div>';
-
+ 
   /* GEO ISSUES */
   if(geoIssues.length){
     h+='<div class="pan"><div class="ph"><div class="pt">📍 Geo-tagged Issues</div><div class="pm">'+geoIssues.length+' with coordinates</div></div>';
@@ -933,10 +1066,10 @@ function pMap(){
     h+='</div>';
   }
   h+='</div>';
-
+ 
   /* RIGHT */
   h+='<div style="display:flex;flex-direction:column;gap:13px;">';
-
+ 
   /* Ward rankings */
   h+='<div class="pan"><div class="ph"><div class="pt">Ward Rankings</div></div>';
   lb.slice(0,10).forEach(function(w,i){
@@ -950,7 +1083,7 @@ function pMap(){
     h+='<div class="lb-cnt" style="color:'+col+'">'+w.count+'</div></div>';
   });
   h+='</div>';
-
+ 
   /* Severity distribution */
   h+='<div class="pan"><div class="ph"><div class="pt">Severity Distribution</div></div>';
   ['critical','high','medium','low'].forEach(function(s){
@@ -962,11 +1095,11 @@ function pMap(){
     h+=prog(pct,sc(s))+'</div>';
   });
   h+='</div>';
-
+ 
   h+='</div></div>';
   return h;
 }
-
+ 
 /* ════════════════════════════════════════
    PAGE: HALL
 ════════════════════════════════════════ */
@@ -987,21 +1120,21 @@ function pHall(){
   var top3=list.slice(0,3), rest=list.slice(3);
   var slaBreach=DATA.issues.filter(function(i){ return i.status==='open'&&dopen(i.created_at)>14; }).sort(function(a,b){ return dopen(b.created_at)-dopen(a.created_at); });
   var h='';
-
+ 
   h+='<div class="sh"><div><div class="sh-title">'+(hallMode==='fame'?'🏆 Hall of Fame':'💀 Hall of Shame')+'</div>';
   h+='<div class="sh-sub">'+(hallMode==='fame'?'Officers resolving issues fastest':'Officers with most unresolved & overdue issues')+' · Live data</div></div></div>';
-
+ 
   h+='<div class="tabrow" style="max-width:340px;margin-bottom:20px">';
   h+='<button class="tbtn'+(hallMode==='fame'?' on':'')+'" onclick="hallMode=\'fame\';render()" style="'+(hallMode==='fame'?'background:linear-gradient(135deg,rgba(0,200,150,.15),rgba(59,158,255,.1));color:var(--teal)':'')+'" >🏆 Hall of Fame</button>';
   h+='<button class="tbtn'+(hallMode==='shame'?' on':'')+'" onclick="hallMode=\'shame\';render()" style="'+(hallMode==='shame'?'background:rgba(255,51,85,.1);color:var(--red)':'')+'" >💀 Hall of Shame</button>';
   h+='</div>';
-
+ 
   h+='<div class="g2">';
-
+ 
   /* LEFT: podium + list */
   h+='<div>';
   h+='<div class="pan" style="margin-bottom:13px">';
-
+ 
   /* Podium */
   h+='<div class="pod-wrap">';
   [1,0,2].forEach(function(idx){
@@ -1019,7 +1152,7 @@ function pHall(){
     h+='<div class="pod-s">'+(hallMode==='fame'?'resolved':'pending')+'</div></div></div>';
   });
   h+='</div>';
-
+ 
   /* Officer list */
   h+='<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px">Full Rankings (Live)</div>';
   rest.forEach(function(o,i){
@@ -1035,10 +1168,10 @@ function pHall(){
     h+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:14px;font-weight:700;color:'+(hallMode==='fame'?'var(--green)':'var(--red)')+';text-align:right">'+score+'<div style="font-size:9px;color:var(--muted);font-weight:400">pts</div></div></div>';
   });
   h+='</div></div>';
-
+ 
   /* RIGHT */
   h+='<div style="display:flex;flex-direction:column;gap:13px;">';
-
+ 
   /* SLA Breach from real data */
   h+='<div class="pan" style="background:rgba(255,51,85,.03);border-color:rgba(255,51,85,.13)">';
   h+='<div class="ph"><div class="pt" style="color:var(--red)">⚠ SLA Breached — Live Data</div><div class="pm">'+slaBreach.length+' issues &gt;14d</div></div>';
@@ -1059,7 +1192,7 @@ function pHall(){
     });
   }
   h+='</div>';
-
+ 
   /* Ward resolution rate */
   h+='<div class="pan"><div class="ph"><div class="pt">Ward Resolution Rate</div></div>';
   Object.entries(OFFICIALS).slice(0,7).forEach(function(entry){
@@ -1074,11 +1207,11 @@ function pHall(){
     h+=prog(rate,col)+'</div>';
   });
   h+='</div>';
-
+ 
   h+='</div></div>';
   return h;
 }
-
+ 
 /* ════════════════════════════════════════
    PAGE: CLUSTERS
 ════════════════════════════════════════ */
@@ -1087,12 +1220,12 @@ function pClusters(){
   var h='';
   h+='<div class="sh"><div><div class="sh-title">Issue Clusters</div>';
   h+='<div class="sh-sub">Similar issues grouped · '+clusters.length+' cluster'+(clusters.length!==1?'s':'')+' identified</div></div></div>';
-
+ 
   if(!clusters.length){
     h+='<div style="text-align:center;padding:48px;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">🔍</div>No clusters yet — fetch live data to see groupings</div>';
     return h;
   }
-
+ 
   clusters.forEach(function(cl,ci){
     var items=cl.items||[];
     var sev=items.length?items[0].severity:'medium';
@@ -1116,7 +1249,7 @@ function pClusters(){
   });
   return h;
 }
-
+ 
 /* ════════════════════════════════════════
    DETAIL MODAL
 ════════════════════════════════════════ */
@@ -1129,7 +1262,7 @@ function openDetail(id){
   var sIdx=issue.status==='resolved'?4:Math.min(1+Math.floor(days/6),3);
   var tweet='🚨 '+days+'d UNRESOLVED — '+issue.ward+', Bengaluru\n\n'+issue.issue_type+': '+issue.description.slice(0,100)+'\n\nResponsible: '+off.mla+' (MLA) · BBMP: '+off.bbmp+'\n\n#'+issue.ward.replace(/\s/g,'')+' #CivicAI #BBMP #Bengaluru';
   var wa='*CivicAI Alert 🚨*\n\n*'+issue.issue_type+'* in *'+issue.ward+'* — *'+days+' days unresolved*\n\n📍 '+issue.location_name+'\n'+issue.description.slice(0,120)+'\n\nOfficer: *'+off.bbmp+'* ('+off.dept+')\nMLA: *'+off.mla+'*\n\nTrack at civicai.in';
-
+ 
   var h='<div class="ov" id="det-ov" onclick="if(event.target===this)this.remove()">';
   h+='<div class="modal">';
   h+='<div class="mhead"><div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted);letter-spacing:2px">#'+issue.id+' · '+(issue.source||'').toUpperCase()+'</div>';
@@ -1138,7 +1271,7 @@ function openDetail(id){
   if(issue.image_url) h+='<img src="'+issue.image_url+'" style="width:100%;border-radius:10px;margin-bottom:14px;max-height:190px;object-fit:cover">';
   h+='<div style="font-size:21px;font-weight:800;color:var(--text);margin-bottom:4px">'+esc(issue.issue_type)+'</div>';
   h+='<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:4px">'+pinsvg()+' '+esc(issue.location_name||issue.ward)+'</div>';
-
+ 
   /* Step tracker */
   h+='<div style="display:flex;align-items:flex-start;margin-bottom:18px">';
   steps.forEach(function(s,i){
@@ -1151,17 +1284,17 @@ function openDetail(id){
     h+='<div style="font-size:9px;color:'+(i<=sIdx?'var(--sub)':'var(--muted)')+';margin-top:4px;text-align:center">'+s+'</div></div>';
   });
   h+='</div>';
-
+ 
   h+='<div style="display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap">'+spill(issue.severity)+' '+stpill(issue.status);
   if(issue.source&&issue.source!=='seed') h+=' '+srcbdg(issue.source);
   h+='</div>';
-
+ 
   /* Timestamp from real data */
   h+='<div style="background:var(--faint);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-family:\'JetBrains Mono\',monospace;font-size:11.5px;color:var(--muted)">📅 Reported: '+fmtd(issue.created_at)+(issue.latitude?'<br>📍 '+issue.latitude.toFixed(5)+', '+issue.longitude.toFixed(5):'')+'</div>';
-
+ 
   h+='<div style="font-size:13.5px;color:var(--sub);line-height:1.55;margin-bottom:16px">'+esc(issue.description)+'</div>';
   if(issue.source_url) h+='<a href="'+issue.source_url+'" target="_blank" rel="noreferrer" style="font-size:12px;color:var(--blue);display:block;margin-bottom:14px">🔗 View original source ↗</a>';
-
+ 
   /* Accountability */
   h+='<div style="border-top:1px solid var(--b);padding-top:14px;margin-bottom:14px">';
   h+='<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:9px">Policy Accountability</div>';
@@ -1170,13 +1303,13 @@ function openDetail(id){
     h+='<span style="color:var(--teal)">'+r[0]+'</span><span style="color:var(--text);font-weight:600">'+esc(r[1])+'</span></div>';
   });
   h+='</div>';
-
+ 
   /* SLA progress */
   h+='<div style="background:'+(days>30?'rgba(255,51,85,.07)':'rgba(255,140,0,.06)')+';border-radius:9px;padding:10px;font-size:12px;color:var(--sub);margin-bottom:10px">';
   h+='⏱ <strong style="color:'+(days>30?'var(--red)':'var(--orange)')+'">Elapsed: '+days+' days</strong>'+(days>30?' · ⚠ SLA BREACHED — escalate now':'');
   h+='</div>';
   h+='<div class="prog" style="margin-bottom:16px"><div class="prog-f" style="width:'+Math.min(days/30*100,100)+'%;background:'+(days>30?'var(--red)':'linear-gradient(90deg,var(--teal),var(--orange))')+'"></div></div>';
-
+ 
   /* Actions */
   h+='<div style="display:flex;gap:8px;margin-bottom:8px">';
   h+='<button onclick="upvote(\''+issue.id+'\',this)" style="flex:1;padding:9px;border-radius:8px;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.18);color:var(--teal);font-size:13px;font-weight:700;cursor:pointer">▲ Upvote ('+issue.upvotes+')</button>';
@@ -1185,10 +1318,10 @@ function openDetail(id){
   h+='<button onclick="cp(\''+wa.replace(/\n/g,'\\n').replace(/'/g,"\\'")+'\')" style="width:100%;padding:9px;border-radius:8px;background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.18);color:#25D166;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">💬 Copy WhatsApp</button>';
   h+='<button onclick="document.getElementById(\'det-ov\').remove();openEsc(\''+issue.id+'\')" style="width:100%;padding:11px;border-radius:10px;background:linear-gradient(135deg,var(--red),var(--orange));border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer">⚡ Escalate to Officials</button>';
   h+='</div></div></div>';
-
+ 
   document.body.insertAdjacentHTML('beforeend',h);
 }
-
+ 
 /* ════════════════════════════════════════
    ESCALATE MODAL
 ════════════════════════════════════════ */
@@ -1200,7 +1333,7 @@ function openEsc(id){
   var tweet='🚨 '+days+'d UNRESOLVED — '+issue.ward+', Bengaluru\n\n'+issue.issue_type+': '+issue.description.slice(0,100)+'\n\nResponsible: '+off.mla+' (MLA) · BBMP: '+off.bbmp+'\n\n#'+issue.ward.replace(/\s/g,'')+' #CivicAI #BBMP #Bengaluru';
   var email='Subject: [URGENT] Unresolved '+issue.issue_type+' — '+issue.ward+' ('+days+' days overdue)\n\nDear '+off.bbmp+',\n'+off.dept+' Department, BBMP\n\nCivicAI Issue: #'+issue.id+'\nIssue: '+issue.issue_type+'\nLocation: '+issue.location_name+'\nSeverity: '+issue.severity.toUpperCase()+'\nReported: '+fmtd(issue.created_at)+'\nDays Open: '+days+'\n\nThis issue is publicly tracked at civicai.in. Mandated SLA is 30 days — currently at '+days+' days.\n\nCC: '+off.mla+' (MLA, '+issue.ward+')\n\nImmediate action required.\n— CivicAI Citizen Network';
   var wa='*CivicAI Alert 🚨*\n*'+issue.issue_type+'* — *'+issue.ward+'* · *'+days+' days unresolved*\n\n📍 '+issue.location_name+'\n'+issue.description.slice(0,120)+'\n\nOfficer: *'+off.bbmp+'* ('+off.dept+') · MLA: *'+off.mla+'*\n\nShare to demand action! civicai.in';
-
+ 
   var h='<div class="ov" id="esc-ov" onclick="if(event.target===this)this.remove()">';
   h+='<div class="modal">';
   h+='<div class="mhead"><div class="mtitle" style="display:flex;align-items:center;gap:7px">⚡ Escalate Issue</div><button class="closebtn" onclick="document.getElementById(\'esc-ov\').remove()">'+xsvg()+'</button></div>';
@@ -1212,7 +1345,7 @@ function openEsc(id){
   [['MLA',off.mla],['BBMP Officer',off.bbmp],['Department',off.dept]].forEach(function(r){
     h+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--b);font-size:12.5px"><span style="color:var(--muted)">'+r[0]+'</span><span style="color:var(--text);font-weight:600">'+esc(r[1])+'</span></div>';
   });
-
+ 
   var templates=[
     ['𝕏 Tweet Template',tweet,'#1DA1F2','rgba(29,161,242,.08)','Tweet'],
     ['💬 WhatsApp Message',wa,'#25D166','rgba(37,211,102,.08)','WhatsApp'],
@@ -1228,7 +1361,7 @@ function openEsc(id){
   h+='</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',h);
 }
-
+ 
 /* ════════════════════════════════════════
    REPORT MODAL
 ════════════════════════════════════════ */
@@ -1258,8 +1391,12 @@ function rptHTML(){
   h+='</select>';
   h+='<label class="fl">Description</label><textarea class="fi" rows="3" placeholder="Describe the issue clearly…" oninput="rptForm.description=this.value">'+esc(rptForm.description)+'</textarea>';
   h+='<label class="fl">Location</label><input class="fi" type="text" placeholder="e.g. Indiranagar 12th Main" value="'+esc(rptForm.location_name)+'" oninput="rptForm.location_name=this.value">';
-  h+='<label class="fl">Ward</label><select class="fi" onchange="rptForm.ward=this.value"><option value="" disabled '+(rptForm.ward?'':'selected')+'>Select ward</option>';
-  WARDS.forEach(function(w){ h+='<option value="'+w+'"'+(rptForm.ward===w?' selected':'')+'>'+w+'</option>'; });
+  h+='<label class="fl">Ward</label><select class="fi" onchange="rptForm.ward=this.value"><option value="" disabled '+(rptForm.ward?'':'selected')+'>Select your ward (198 BBMP wards)</option>';
+  Object.entries(WARDS_BY_ZONE).forEach(function(zEntry){
+    h+='<optgroup label="── '+zEntry[0]+' ──">';
+    zEntry[1].forEach(function(w){ h+='<option value="'+w+'"'+(rptForm.ward===w?' selected':'')+'>'+w+'</option>'; });
+    h+='</optgroup>';
+  });
   h+='</select>';
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">';
   h+='<div style="font-size:11px;color:var(--teal);font-weight:600">✓ Verified by CivicChain</div>';
@@ -1321,7 +1458,7 @@ function finalSub(){
   toast('✓ Issue reported — live on dashboard!','#30D158');
   render();
 }
-
+ 
 /* ════════════════════════════════════════
    UTILITIES
 ════════════════════════════════════════ */
@@ -1349,7 +1486,7 @@ document.addEventListener('click',function(ev){
   var sb=e('sb'); var hb=document.querySelector('.hbtn');
   if(window.innerWidth<768&&sb&&sb.classList.contains('open')&&!sb.contains(ev.target)&&hb&&!hb.contains(ev.target)) closeSB();
 });
-
+ 
 /* ════════════════════════════════════════
    INIT — seed first, fetch live after
 ════════════════════════════════════════ */
